@@ -1,0 +1,59 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 部署指南
+
+## 开发环境
+- 本地开发使用Vite提供的开发服务器
+- 后端使用Nodemon实现热重载
+- 推荐使用Docker容器化开发环境
+
+## 生产部署选项
+
+### 前端部署
+- **静态托管**：Vercel、Netlify、AWS S3+CloudFront
+- **容器部署**：Docker + Kubernetes
+- **传统托管**：Nginx服务器
+
+构建步骤：
+```bash
+cd apps/sakura-frontend
+pnpm build
+# 输出在dist目录
+```
+
+### 后端部署
+- **服务器部署**：VPS、AWS EC2
+- **容器部署**：Docker + Kubernetes
+- **无服务器**：AWS Lambda、Vercel Functions
+
+构建步骤：
+```bash
+cd apps/backend
+pnpm build
+# 使用PM2或systemd运行
+```
+
+### 数据库部署
+- **托管服务**：AWS RDS、MongoDB Atlas
+- **自托管**：Docker容器或专用服务器
+
+## CI/CD流程建议
+1. 提交代码到Git仓库
+2. 触发CI流水线（GitHub Actions、GitLab CI）
+3. 运行单元测试和集成测试
+4. 构建前端和后端应用
+5. 部署到预发环境进行验证
+6. 部署到生产环境
+
+## 环境变量管理
+- 开发环境：.env.development
+- 测试环境：.env.test
+- 生产环境：.env.production
+
+敏感信息（密钥、令牌）应存储在安全的环境变量服务中，如：
+- GitHub Secrets
+- AWS Parameter Store
+- HashiCorp Vault

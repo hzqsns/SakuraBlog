@@ -1,0 +1,49 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 编码标准与最佳实践
+
+## TypeScript规范
+- 使用TypeScript类型定义提高代码质量和可维护性
+- 避免使用`any`类型，尽量提供明确的类型定义
+- 使用接口（interface）定义数据结构和API契约
+- 充分利用TypeScript的类型推断，减少冗余类型注解
+- 使用类型声明文件（.d.ts）为第三方库提供类型支持
+
+## React开发规范
+- 使用函数组件和React Hooks，避免使用类组件
+- 组件文件使用`.tsx`扩展名，非组件TypeScript文件使用`.ts`扩展名
+- 按照关注点分离原则组织代码结构
+- 将大型组件拆分为小型、可复用的组件
+- 使用ESLint进行代码检查，配置位于[apps/sakura-frontend/eslint.config.js](mdc:apps/sakura-frontend/eslint.config.js)
+- 使用React.memo或useMemo优化渲染性能
+- 使用useCallback避免不必要的函数重建
+
+## 样式指南
+- 使用CSS模块或CSS-in-JS解决方案（如styled-components）
+- 遵循BEM命名约定（Block__Element--Modifier）
+- 使用相对单位（rem、em）而非绝对单位（px）
+- 考虑移动优先（Mobile First）设计原则
+- 使用CSS变量管理主题和颜色
+
+## 前端架构原则
+- 单向数据流：状态下发、事件上传
+- 组件化：构建可复用、可测试的组件
+- 容器/展示组件分离：分离数据逻辑和UI逻辑
+- 可测试性：编写单元测试和集成测试
+
+## 后端开发规范
+- 使用层次化架构（控制器、服务、模型）
+- 实现适当的错误处理和日志记录
+- 使用依赖注入管理服务依赖
+- API接口返回统一的响应格式
+- 使用中间件处理横切关注点（认证、日志等）
+
+## 提交规范
+- 使用清晰简洁的提交信息
+- 遵循约定式提交（Conventional Commits）规范
+- 主题前缀：feat, fix, docs, style, refactor, perf, test, build, ci, chore
+- 确保每个提交专注于单一变更
+- 在提交前运行测试和代码检查

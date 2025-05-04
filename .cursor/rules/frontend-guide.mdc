@@ -1,0 +1,42 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 前端项目结构指南
+
+前端项目位于[apps/sakura-frontend](mdc:apps/sakura-frontend)目录，是一个使用React和TypeScript构建的单页应用。
+
+## 目录结构
+- **src/components/**：可复用UI组件
+- **src/pages/**：页面级组件，对应路由
+- **src/hooks/**：自定义React Hooks
+- **src/utils/**：工具函数
+- **src/assets/**：静态资源（图片、字体等）
+- **src/api/**：API请求函数（建议添加）
+- **src/store/**：状态管理（建议添加，如Redux或Context）
+- **src/types/**：TypeScript类型定义（建议添加）
+- **src/routes/**：路由配置（建议添加）
+- **src/constants/**：常量定义（建议添加）
+- **src/styles/**：全局样式和主题（建议添加）
+
+## 核心文件
+- 入口文件：[apps/sakura-frontend/src/main.tsx](mdc:apps/sakura-frontend/src/main.tsx)
+- 主应用组件：[apps/sakura-frontend/src/App.tsx](mdc:apps/sakura-frontend/src/App.tsx)
+
+## 配置文件
+- Vite配置：[apps/sakura-frontend/vite.config.ts](mdc:apps/sakura-frontend/vite.config.ts)
+- TypeScript配置：[apps/sakura-frontend/tsconfig.json](mdc:apps/sakura-frontend/tsconfig.json)
+- ESLint配置：[apps/sakura-frontend/eslint.config.js](mdc:apps/sakura-frontend/eslint.config.js)
+
+## 样式文件
+- 全局样式：[apps/sakura-frontend/src/index.css](mdc:apps/sakura-frontend/src/index.css)
+- 应用样式：[apps/sakura-frontend/src/App.css](mdc:apps/sakura-frontend/src/App.css)
+
+## 推荐扩展库
+- **路由管理**：react-router-dom
+- **样式解决方案**：styled-components、emotion 或 tailwindcss
+- **状态管理**：React Context API、Redux Toolkit 或 Zustand
+- **表单处理**：React Hook Form 或 Formik
+- **数据获取**：React Query 或 SWR
+- **UI组件库**：Ant Design、Material-UI 或 Chakra UI

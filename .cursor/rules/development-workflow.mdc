@@ -1,0 +1,69 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 开发工作流程
+
+## 前端开发流程
+在[apps/sakura-frontend](mdc:apps/sakura-frontend)目录中：
+```bash
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+
+# 构建生产版本
+pnpm build
+
+# 代码检查
+pnpm lint
+```
+
+## 后端开发流程
+在[apps/backend](mdc:apps/backend)目录中：
+```bash
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+
+# 构建生产版本
+pnpm build
+
+# 运行测试
+pnpm test
+```
+
+## 整体项目命令
+在项目根目录中：
+```bash
+# 安装所有工作区依赖
+pnpm install
+
+# 添加依赖到特定工作区
+pnpm add <package> --filter <workspace>
+
+# 添加开发依赖到特定工作区
+pnpm add -D <package> --filter <workspace>
+
+# 在所有工作区运行相同脚本
+pnpm -r <script>
+
+# 构建所有工作区
+pnpm -r build
+```
+
+## 项目设置步骤
+1. 克隆仓库
+2. 在根目录运行 `pnpm install` 安装所有依赖
+3. 配置必要的环境变量（如有）
+4. 前端开发：在 `apps/sakura-frontend` 运行 `pnpm dev`
+5. 后端开发：在 `apps/backend` 运行 `pnpm dev`
+
+## 数据库设置（推荐）
+1. 安装数据库（如PostgreSQL、MongoDB）
+2. 设置数据库连接环境变量
+3. 运行迁移脚本（如使用Prisma：`npx prisma migrate dev`）

@@ -1,0 +1,44 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 后端项目结构指南
+
+后端项目位于[apps/backend](mdc:apps/backend)目录，基于Node.js构建RESTful API服务。
+
+## 推荐目录结构
+- **src/controllers/**：请求处理控制器，处理HTTP请求和响应
+- **src/services/**：业务逻辑层，实现核心功能
+- **src/models/**：数据模型定义，与数据库交互
+- **src/routes/**：API路由定义，URL路径映射
+- **src/middlewares/**：中间件，如认证、日志、错误处理
+- **src/config/**：配置文件，环境变量管理
+- **src/utils/**：工具函数和辅助方法
+- **src/types/**：TypeScript类型定义
+- **src/tests/**：单元测试和集成测试
+
+## 入口文件
+- **src/index.ts**（或app.ts）：应用程序入口点
+- **src/server.ts**：HTTP服务器配置
+
+## 项目配置
+- 包配置：[apps/backend/package.json](mdc:apps/backend/package.json)
+- TypeScript配置：建议添加tsconfig.json
+- 环境变量：建议添加.env和.env.example文件
+
+## 推荐技术栈
+- **Web框架**：Express 或 NestJS
+- **数据库ORM**：Prisma、TypeORM 或 Mongoose
+- **API文档**：Swagger/OpenAPI
+- **身份认证**：JWT、Passport
+- **校验**：Joi 或 class-validator
+- **日志**：Winston 或 Pino
+- **测试**：Jest、Supertest
+
+## 开发约定
+1. 遵循RESTful API设计原则
+2. 使用TypeScript提供类型安全
+3. 实现适当的错误处理和日志记录
+4. 使用环境变量进行配置管理
+5. 编写单元测试和集成测试

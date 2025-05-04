@@ -1,0 +1,27 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# SakuraBlog项目结构概览
+
+SakuraBlog是一个基于monorepo结构的博客项目，使用pnpm作为包管理工具，采用React+TypeScript开发前端，Node.js开发后端。
+
+## 项目架构
+- **前端**：React应用位于[apps/sakura-frontend](mdc:apps/sakura-frontend)目录
+- **后端**：Node.js API服务位于[apps/backend](mdc:apps/backend)目录
+
+## 主要配置文件
+- 工作区配置：[pnpm-workspace.yaml](mdc:pnpm-workspace.yaml)
+- 项目配置：[package.json](mdc:package.json)
+
+## 整体技术栈
+- **前端**：React、TypeScript、Vite
+- **后端**：Node.js、Express（推荐）
+- **包管理**：pnpm
+- **代码风格**：ESLint、TypeScript
+
+## 开发流程
+- 遵循组件化、模块化开发原则
+- 前后端分离，通过API进行通信
+- 使用TypeScript确保类型安全

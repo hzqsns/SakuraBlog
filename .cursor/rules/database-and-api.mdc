@@ -1,0 +1,48 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 数据库和API设计指南
+
+## 数据库设计
+- 推荐使用关系型数据库（如PostgreSQL）或文档数据库（如MongoDB）
+- 使用ORM（如Prisma、TypeORM）管理数据库操作
+- 设计规范化的数据模型，避免数据冗余
+- 使用迁移脚本管理数据库结构变更
+- 考虑索引优化查询性能
+
+## API设计原则
+- 遵循RESTful设计原则
+- 使用适当的HTTP方法（GET、POST、PUT、DELETE等）
+- URL路径应使用资源名词，而非动词
+- 使用HTTP状态码表示请求结果
+- 提供分页、过滤和排序机制
+- 实现适当的错误处理和响应
+
+## API响应格式
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "操作成功",
+  "errors": null
+}
+```
+
+## RESTful API示例
+| 操作 | HTTP方法 | 路径 |
+|-----|----------|-----|
+| 获取博客列表 | GET | /api/posts |
+| 获取单篇博客 | GET | /api/posts/{id} |
+| 创建博客 | POST | /api/posts |
+| 更新博客 | PUT/PATCH | /api/posts/{id} |
+| 删除博客 | DELETE | /api/posts/{id} |
+
+## 安全最佳实践
+- 实现JWT认证
+- 使用HTTPS加密传输
+- 实现CORS策略
+- 防范SQL注入和XSS攻击
+- 使用参数校验和净化
+- 实施速率限制（Rate Limiting）
