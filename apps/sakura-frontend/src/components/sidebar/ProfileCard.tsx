@@ -8,9 +8,9 @@ export function ProfileCard() {
       <CardContent className="p-6 flex flex-col items-center text-center">
         <Avatar className="h-24 w-24 mb-4">
           <AvatarImage src="https://i.pravatar.cc/150" alt="头像" />
-          <AvatarFallback>银河</AvatarFallback>
+          <AvatarFallback>Sakura</AvatarFallback>
         </Avatar>
-        <h3 className="text-xl font-bold mb-1">银河渡舟</h3>
+        <h3 className="text-xl font-bold mb-1">Sakura</h3>
         <p className="text-sm text-gray-500 mb-4">浊以静之徐清，安以动之徐生</p>
         <div className="flex gap-2">
           <Button size="sm" variant="outline">
