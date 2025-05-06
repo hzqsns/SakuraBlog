@@ -1,0 +1,27 @@
+/* PostList动画延迟样式 */
+.post-list-item {
+    &.even {
+        transform: translateX(0);
+        &:hover {
+            transform: translateX(-8px);
+        }
+    }
+
+    &.odd {
+        transform: translateX(0);
+        &:hover {
+            transform: translateX(8px);
+        }
+    }
+
+    /* 循环生成不同的延迟 */
+    .generate-delays(10);
+
+    .generate-delays(@n, @i: 0) when (@i =< @n) {
+        &:nth-child(@{i}) {
+            animation-delay: (@i * 0.1s);
+            transition-delay: (@i * 0.05s);
+        }
+        .generate-delays(@n, (@i + 1));
+    }
+}

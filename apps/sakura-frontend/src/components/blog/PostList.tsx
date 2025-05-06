@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { Post } from '@/types'
 import { PostCard } from './PostCard'
+import './PostList.less'
 
 interface PostListProps {
     posts: Post[]
@@ -17,13 +18,7 @@ export const PostList: FC<PostListProps> = ({ posts }) => {
                 posts.map((post, index) => (
                     <div
                         key={post.id}
-                        className={`transform transition-all duration-500 ${
-                            index % 2 === 0 ? 'translate-x-0 hover:-translate-x-2' : 'translate-x-0 hover:translate-x-2'
-                        }`}
-                        style={{
-                            animationDelay: `${index * 0.1}s`,
-                            transitionDelay: `${index * 0.05}s`
-                        }}
+                        className={`post-list-item transform transition-all duration-500 ${index % 2 === 0 ? 'even' : 'odd'}`}
                     >
                         <PostCard post={post} />
                     </div>

@@ -1,5 +1,7 @@
 import { FC, useRef, useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
+import { CSSTransition } from 'react-transition-group'
+import './Catalogue.less'
 
 interface CatalogueItem {
     id: string
@@ -138,7 +140,7 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
                             }
                         }}
                     >
-                        <div className="flex items-center py-1.5 w-full" style={{ paddingLeft: `${depth * 16}px` }}>
+                        <div className={`flex items-center py-1.5 w-full toc-item-level-${depth + 1}`}>
                             {/* 标题内容 - 有数字前缀的特殊处理 */}
                             <div className="text-sm flex-grow">
                                 {titlePrefix && (
@@ -164,8 +166,7 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
             <div className="w-full md:w-64 mb-6 md:mb-0">
                 <div
                     ref={tocRef}
-                    className="hidden md:block sticky top-6 bg-white rounded-xl p-4 shadow-sm border border-gray-100 max-h-[calc(100vh-100px)] overflow-y-auto"
-                    style={{ alignSelf: 'flex-start' }}
+                    className="hidden md:block sticky top-6 bg-white rounded-xl p-4 shadow-sm border border-gray-100 max-h-[calc(100vh-100px)] overflow-y-auto toc-container"
                 >
                     <h3 className="text-lg font-bold mb-4 text-gray-800 px-1">目录</h3>
                     <nav className="mt-2">
@@ -184,14 +185,10 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
                 </button>
             </div>
 
-            {/* 移动端目录抽屉 */}
-            {isMobileMenuOpen && (
+            {/* 移动端目录抽屉 - 使用CSSTransition替代dangerouslySetInnerHTML */}
+            <CSSTransition in={isMobileMenuOpen} timeout={300} classNames="mobile-menu" unmountOnExit>
                 <div className="md:hidden fixed inset-0 bg-black/50 z-50 flex justify-end transition-all duration-300">
-                    <div
-                        ref={mobileMenuRef}
-                        className="bg-white w-4/5 h-full overflow-y-auto p-4 transform translate-x-0 transition-transform duration-300 shadow-lg"
-                        style={{ animation: 'slideInRight 0.3s ease-out' }}
-                    >
+                    <div ref={mobileMenuRef} className="bg-white w-4/5 h-full overflow-y-auto p-4 mobile-menu-slide shadow-lg">
                         <div className="flex justify-between items-center mb-4 pb-2 border-b">
                             <h3 className="text-lg font-bold text-gray-800">目录</h3>
                             <button
@@ -214,32 +211,7 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
                         </nav>
                     </div>
                 </div>
-            )}
-
-            {/* 添加CSS动画 */}
-            <style
-                dangerouslySetInnerHTML={{
-                    __html: `
-                    @keyframes slideInRight {
-                        from {
-                            transform: translateX(100%);
-                        }
-                        to {
-                            transform: translateX(0);
-                        }
-                    }
-                    
-                    @keyframes fadeIn {
-                        from {
-                            opacity: 0;
-                        }
-                        to {
-                            opacity: 1;
-                        }
-                    }
-                `
-                }}
-            />
+            </CSSTransition>
         </>
     )
 }
