@@ -125,4 +125,3 @@ export const PostCard: FC<PostCardProps> = ({ post }) => {
         </Link>
     )
 }
- 

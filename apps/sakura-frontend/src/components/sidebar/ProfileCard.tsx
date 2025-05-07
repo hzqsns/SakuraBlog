@@ -7,7 +7,7 @@ export function ProfileCard() {
     <Card className="mb-6">
       <CardContent className="p-6 flex flex-col items-center text-center">
         <Avatar className="h-24 w-24 mb-4">
-          <AvatarImage src="https://i.pravatar.cc/150" alt="头像" />
+          <AvatarImage src="https://i.stardots.io/hzqsns/1746623008124.jpg" alt="头像" />
           <AvatarFallback>Sakura</AvatarFallback>
         </Avatar>
         <h3 className="text-xl font-bold mb-1">Sakura</h3>

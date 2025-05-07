@@ -5,7 +5,7 @@ export function MusicPlayer() {
     // 改回单个 audio 对象
     const audio = {
         name: 'Merry Christmas Mr. Lawrence',
-        artist: '高橋洋子',
+        artist: '坂本龍一',
         url: 'https://music.163.com/song/media/outer/url?id=4899152.mp3', // 更新为本地文件路径
         cover: 'https://p1.music.126.net/woiqainQI-orV_RuUuOVRw==/716881581353216.jpg?param=130y130', // 确保提供了封面URL
         lrc: '' // 可选：LRC歌词内容
