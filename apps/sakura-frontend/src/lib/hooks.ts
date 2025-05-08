@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { UseToggleReturn, UseLocalStorageReturn, UseLocalStorageOptions } from '@/types/hooks'
 import { safeParseJSON } from './utils'
 

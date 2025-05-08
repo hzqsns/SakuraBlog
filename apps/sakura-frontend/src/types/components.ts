@@ -17,7 +17,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Ba
 }
 
 // 输入框组件Props类型
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement>, BaseComponentProps {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix' | 'suffix'>, BaseComponentProps {
     label?: string
     error?: string
     prefix?: ReactNode

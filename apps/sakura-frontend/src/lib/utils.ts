@@ -1,6 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import dayjs from 'dayjs'
 
 /**
  * 合并类名工具函数，结合clsx和tailwind-merge

@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { RouteObject } from 'react-router-dom'
 
 // 扩展RouteObject添加自定义属性
-export interface AppRouteObject extends RouteObject {
+export type AppRouteObject = RouteObject & {
     // 是否在导航菜单中显示
     showInMenu?: boolean
     // 导航菜单中的标题
