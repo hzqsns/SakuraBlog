@@ -3,6 +3,8 @@ import { About } from '@/pages/About'
 import { Friends } from '@/pages/Friends'
 import { Archive } from '@/pages/Archive'
 import { PostDetail } from '@/pages/PostDetail'
+import { SearchResults } from '@/pages/SearchResults'
+import { TagResults } from '@/pages/TagResults'
 import { RouteGuard } from './RouteGuard'
 import { AppRouteObject } from '@/types/route'
 
@@ -35,6 +37,16 @@ export const routes: AppRouteObject[] = [
     {
         path: '/post/:slug',
         element: <PostDetail />,
+        showInMenu: false
+    },
+    {
+        path: '/search',
+        element: <SearchResults />,
+        showInMenu: false
+    },
+    {
+        path: '/tag/:tag',
+        element: <TagResults />,
         showInMenu: false
     },
     // 未授权页面

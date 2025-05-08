@@ -1,6 +1,6 @@
-import { Input } from '@/components/ui/input'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '@/components/ui/navigation-menu'
 import { Link, useLocation } from 'react-router-dom'
+import { SearchBox } from '@/components/ui/search-box'
 
 export function Header() {
     const location = useLocation()
@@ -55,22 +55,7 @@ export function Header() {
 
                 <div className="flex items-center gap-2">
                     <div className="relative w-64">
-                        <Input type="search" placeholder="搜索..." className="pl-8" />
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="absolute left-2 top-2.5 h-4 w-4 text-gray-500"
-                        >
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="m21 21-4.3-4.3" />
-                        </svg>
+                        <SearchBox placeholder="搜索文章..." />
                     </div>
                 </div>
             </div>

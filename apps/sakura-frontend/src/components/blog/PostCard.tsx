@@ -1,13 +1,15 @@
 import { FC } from 'react'
 import { Post } from '@/types'
 import { formatDate, getPostUrl } from '@/lib/utils'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 interface PostCardProps {
     post: Post
 }
 
 export const PostCard: FC<PostCardProps> = ({ post }) => {
+    const navigate = useNavigate()
+
     // 计算阅读时间，假设一分钟可以阅读300个字
     const readTime = Math.max(1, Math.ceil(post.content.length / 300))
 
@@ -94,7 +96,12 @@ export const PostCard: FC<PostCardProps> = ({ post }) => {
                             {post.tags.map(tag => (
                                 <span
                                     key={tag}
-                                    className="px-3 py-1 bg-gray-600 rounded-full text-sm transition-colors duration-300 hover:bg-blue-600 hover:text-white"
+                                    className="px-3 py-1 bg-gray-600 rounded-full text-sm transition-colors duration-300 hover:bg-blue-600 hover:text-white cursor-pointer"
+                                    onClick={e => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        navigate(`/tag/${encodeURIComponent(tag)}`)
+                                    }}
                                 >
                                     {tag}
                                 </span>
