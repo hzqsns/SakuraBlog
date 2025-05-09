@@ -63,7 +63,8 @@ export function SearchBox({ className, placeholder = '搜索...' }: SearchBoxPro
         setShowSuggestions(false)
     }
 
-    const handleSuggestionClick = (slug: string) => {
+    // 处理建议点击，重置搜索框
+    const handleSuggestionClick = () => {
         setShowSuggestions(false)
         setQuery('')
     }
@@ -104,11 +105,7 @@ export function SearchBox({ className, placeholder = '搜索...' }: SearchBoxPro
                     <ul className="py-1">
                         {suggestions.map(post => (
                             <li key={post.id} className="px-4 py-2 hover:bg-gray-100">
-                                <Link
-                                    to={`/post/${post.slug || post.id}`}
-                                    className="block"
-                                    onClick={() => handleSuggestionClick(post.slug || post.id)}
-                                >
+                                <Link to={`/post/${post.slug || post.id}`} className="block" onClick={handleSuggestionClick}>
                                     <div className="font-medium">{post.title}</div>
                                     <div className="text-sm text-gray-500 truncate">{post.excerpt}</div>
                                 </Link>
