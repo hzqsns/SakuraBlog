@@ -23,7 +23,11 @@ export function Layout({ children }: PropsWithChildren) {
                 <div className="absolute top-1/2 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
             </div>
 
+            {/* 导航栏 */}
             <Header />
+
+            {/* 添加顶部间距，为固定导航栏腾出空间 */}
+            <div className="h-16"></div>
 
             <main className="container mx-auto max-w-7xl flex-1 py-6 px-4 z-10">
                 <div className="flex gap-6">
