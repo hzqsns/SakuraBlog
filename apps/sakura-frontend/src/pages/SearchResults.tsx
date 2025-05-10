@@ -56,3 +56,4 @@ export const SearchResults: FC = () => {
         </div>
     )
 }
+ 

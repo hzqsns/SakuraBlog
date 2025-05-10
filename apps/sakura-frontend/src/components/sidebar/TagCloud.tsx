@@ -89,7 +89,10 @@ export const TagCloud: FC = () => {
                         onClick={() => navigate(`/tag/${encodeURIComponent(tag.name)}`)}
                         className={`
                             flex items-center rounded-full px-3 py-1.5 text-xs font-medium
-                            transition-colors duration-200
+                            transition-all duration-200 mb-1
+                            cursor-pointer
+                            hover:shadow-md hover:scale-105
+                            active:scale-95 active:shadow-sm
                             ${getTagBgClass(tag.name)}
                         `}
                     >
