@@ -32,39 +32,44 @@ export const TagCloud: FC = () => {
         setTags(tagArray)
     }, [])
 
-    // 根据标签出现次数计算字体大小
-    const getFontSize = (count: number) => {
-        const min = 0.85
-        const max = 1.5
-        const maxCount = Math.max(...tags.map(t => t.count))
-        const minCount = Math.min(...tags.map(t => t.count))
-
-        if (maxCount === minCount) return 1
-
-        // 线性映射标签计数到字体大小范围
-        return min + ((count - minCount) / (maxCount - minCount)) * (max - min)
-    }
-
-    // 随机生成标签颜色
-    const getTagColor = (tag: string) => {
+    // 随机生成标签背景颜色
+    const getTagBgClass = (tag: string) => {
         // 使用标签名称的哈希生成颜色，保证相同标签有相同颜色
         const hash = tag.split('').reduce((acc, char) => {
             return char.charCodeAt(0) + ((acc << 5) - acc)
         }, 0)
 
-        const colors = [
-            'text-blue-500 hover:text-blue-600',
-            'text-green-500 hover:text-green-600',
-            'text-purple-500 hover:text-purple-600',
-            'text-red-500 hover:text-red-600',
-            'text-indigo-500 hover:text-indigo-600',
-            'text-pink-500 hover:text-pink-600',
-            'text-yellow-600 hover:text-yellow-700',
-            'text-teal-500 hover:text-teal-600'
+        const bgClasses = [
+            'bg-blue-100 hover:bg-blue-200 text-blue-800',
+            'bg-green-100 hover:bg-green-200 text-green-800',
+            'bg-indigo-100 hover:bg-indigo-200 text-indigo-800',
+            'bg-purple-100 hover:bg-purple-200 text-purple-800',
+            'bg-yellow-100 hover:bg-yellow-200 text-yellow-800',
+            'bg-pink-100 hover:bg-pink-200 text-pink-800',
+            'bg-gray-100 hover:bg-gray-200 text-gray-800',
+            'bg-teal-100 hover:bg-teal-200 text-teal-800',
+            'bg-red-100 hover:bg-red-200 text-red-800',
+            'bg-orange-100 hover:bg-orange-200 text-orange-800'
         ]
 
-        return colors[Math.abs(hash) % colors.length]
+        return bgClasses[Math.abs(hash) % bgClasses.length]
     }
+
+    // 标签图标 SVG
+    const TagIcon = () => (
+        <svg
+            className="w-3.5 h-3.5 mr-1 inline-block"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+        </svg>
+    )
 
     if (tags.length === 0) {
         return null
@@ -72,19 +77,25 @@ export const TagCloud: FC = () => {
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-bold mb-4 pb-2 border-b">标签云</h3>
+            <div className="flex items-center gap-2 mb-4 pb-2 border-b">
+                <TagIcon />
+                <h3 className="text-lg font-bold">标签云</h3>
+            </div>
 
             <div className="flex flex-wrap gap-2">
                 {tags.map(tag => (
-                    <span
+                    <button
                         key={tag.name}
                         onClick={() => navigate(`/tag/${encodeURIComponent(tag.name)}`)}
-                        className={`cursor-pointer transition-all duration-300 hover:underline ${getTagColor(tag.name)}`}
-                        style={{ fontSize: `${getFontSize(tag.count)}rem` }}
+                        className={`
+                            flex items-center rounded-full px-3 py-1.5 text-xs font-medium
+                            transition-colors duration-200
+                            ${getTagBgClass(tag.name)}
+                        `}
                     >
+                        <span className="mr-1">#</span>
                         {tag.name}
-                        <sup className="ml-0.5 text-xs text-gray-500">({tag.count})</sup>
-                    </span>
+                    </button>
                 ))}
             </div>
         </div>
