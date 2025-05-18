@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { loadPaperBySlug } from '@/utils/loadPapers'
 import { Paper } from '@/types/markdown'
 import { CalendarIcon, Clock, BookOpen, Hash } from 'lucide-react'
@@ -222,10 +222,14 @@ export const PostDetail: FC = () => {
 
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
                         {paper.tags?.map(tag => (
-                            <span key={tag} className="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">
+                            <Link
+                                key={tag}
+                                to={`/tag/${tag}`}
+                                className="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm hover:bg-white/30 transition-colors"
+                            >
                                 <Hash className="inline h-4 w-4 mr-1" />
                                 {tag}
-                            </span>
+                            </Link>
                         ))}
                     </div>
 
