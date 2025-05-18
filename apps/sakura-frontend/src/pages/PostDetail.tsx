@@ -7,6 +7,7 @@ import { formatDate } from '@/lib/utils'
 import { Catalogue } from '@/components/blog/Catalogue'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Waline } from '@/components/comment'
 
 // 扩展Post类型以满足组件需求
 interface ExtendedPost extends Post {
@@ -258,6 +259,19 @@ export const PostDetail: FC = () => {
                         {post.content || ''}
                     </ReactMarkdown>
                 </div>
+            </div>
+
+            {/* 评论 */}
+            <div className="mt-12">
+                <Waline
+                    serverURL="https://waline-comment-eta-three.vercel.app/"
+                    emoji={['//unpkg.com/@waline/emojis@1.2.0/weibo', '//unpkg.com/@waline/emojis@1.2.0/bmoji']}
+                    reaction={[
+                        'https://unpkg.com/@waline/emojis@1.2.0/bmoji/bmoji_give_love.png',
+                        'https://unpkg.com/@waline/emojis@1.2.0/bmoji/bmoji_doge.png',
+                        'https://unpkg.com/@waline/emojis@1.2.0/bmoji/bmoji_unhappy.png'
+                    ]}
+                />
             </div>
         </div>
     )
