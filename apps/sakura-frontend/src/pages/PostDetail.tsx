@@ -183,7 +183,7 @@ export const PostDetail: FC = () => {
     }, [isLoaded, headings, activeHeading])
 
     if (!post) {
-        return <div className="container mx-auto px-4 py-8">文章不存在</div>
+        return <div className="container mx-auto px-4 py-4">文章不存在</div>
     }
 
     // 辅助函数：创建ID
@@ -195,7 +195,7 @@ export const PostDetail: FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 bg-gray-50">
+        <div className="container mx-auto px-4 py-4 bg-gray-50">
             {/* 顶部图片和标题区域 */}
             <div className="relative mb-8">
                 <div className="w-full h-[60vh] relative">
