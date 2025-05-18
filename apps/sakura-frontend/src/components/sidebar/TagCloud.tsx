@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { mockPosts } from '@/lib/mockData'
+import { loadAllPapers } from '@/utils/loadPapers'
 
 interface TagCount {
     name: string
@@ -9,27 +9,42 @@ interface TagCount {
 
 export const TagCloud: FC = () => {
     const [tags, setTags] = useState<TagCount[]>([])
+    const [loading, setLoading] = useState(true)
     const navigate = useNavigate()
 
     useEffect(() => {
-        // 统计所有标签及其出现次数
-        const tagCounts: Record<string, number> = {}
-        mockPosts.forEach(post => {
-            post.tags.forEach(tag => {
-                tagCounts[tag] = (tagCounts[tag] || 0) + 1
-            })
-        })
+        // 异步加载所有文章并提取标签
+        const fetchTags = async () => {
+            setLoading(true)
+            try {
+                const papers = await loadAllPapers()
 
-        // 转换为数组并排序
-        const tagArray = Object.entries(tagCounts).map(([name, count]) => ({
-            name,
-            count
-        }))
+                // 统计所有标签及其出现次数
+                const tagCounts: Record<string, number> = {}
+                papers.forEach(paper => {
+                    paper.tags.forEach(tag => {
+                        tagCounts[tag] = (tagCounts[tag] || 0) + 1
+                    })
+                })
 
-        // 按出现次数排序
-        tagArray.sort((a, b) => b.count - a.count)
+                // 转换为数组并排序
+                const tagArray = Object.entries(tagCounts).map(([name, count]) => ({
+                    name,
+                    count
+                }))
 
-        setTags(tagArray)
+                // 按出现次数排序
+                tagArray.sort((a, b) => b.count - a.count)
+
+                setTags(tagArray)
+            } catch (error) {
+                console.error('Error loading tags:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchTags()
     }, [])
 
     // 随机生成标签背景颜色
@@ -70,6 +85,19 @@ export const TagCloud: FC = () => {
             <line x1="7" y1="7" x2="7.01" y2="7"></line>
         </svg>
     )
+
+    if (loading) {
+        return (
+            <div className="bg-white p-6 rounded-lg shadow-md animate-pulse">
+                <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                <div className="flex flex-wrap gap-2">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="h-8 bg-gray-200 rounded-full w-16"></div>
+                    ))}
+                </div>
+            </div>
+        )
+    }
 
     if (tags.length === 0) {
         return null

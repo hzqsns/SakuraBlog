@@ -60,4 +60,6 @@ export interface ApiResponse<T> {
     success: boolean
     message?: string
 }
- 
+
+// 重新导出markdown.ts中的类型
+export * from './markdown'

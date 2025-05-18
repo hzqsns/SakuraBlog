@@ -1,33 +1,61 @@
 import { FC, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PostList } from '@/components/blog/PostList'
-import { Post } from '@/types'
-import { mockPosts } from '@/lib/mockData'
+import { Paper } from '@/types/markdown'
+import { loadAllPapers } from '@/utils/loadPapers'
+
+// 将Paper类型转换为PostList组件所需的Post类型
+const adaptPaperToPost = (paper: Paper) => ({
+    id: paper.slug, // 使用slug作为id
+    title: paper.title,
+    content: paper.content,
+    excerpt: paper.excerpt,
+    author: paper.author,
+    publishDate: paper.publishDate,
+    tags: paper.tags,
+    category: paper.category[0] || '', // 取第一个分类
+    coverImage: paper.coverImage,
+    slug: paper.slug
+})
 
 export const SearchResults: FC = () => {
     const [searchParams] = useSearchParams()
     const query = searchParams.get('q') || ''
-    const [results, setResults] = useState<Post[]>([])
+    const [results, setResults] = useState<Paper[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        setIsLoading(true)
+        const fetchResults = async () => {
+            setIsLoading(true)
 
-        // 模拟搜索请求
-        const timer = setTimeout(() => {
-            const searchResults = mockPosts.filter(post => {
-                const searchableContent = [post.title, post.content, post.excerpt, post.author, ...(post.tags || []), post.category]
-                    .join(' ')
-                    .toLowerCase()
+            try {
+                // 加载所有文章
+                const allPapers = await loadAllPapers()
 
-                return searchableContent.includes(query.toLowerCase())
-            })
+                // 按照查询词过滤文章
+                const searchResults = allPapers.filter(paper => {
+                    const searchableContent = [paper.title, paper.content, paper.excerpt, paper.author, ...paper.tags, ...paper.category]
+                        .join(' ')
+                        .toLowerCase()
 
-            setResults(searchResults)
+                    return searchableContent.includes(query.toLowerCase())
+                })
+
+                setResults(searchResults)
+                setIsLoading(false)
+            } catch (error) {
+                console.error('Error searching papers:', error)
+                setIsLoading(false)
+            }
+        }
+
+        // 当查询字符串变化时执行搜索
+        if (query) {
+            fetchResults()
+        } else {
+            setResults([])
             setIsLoading(false)
-        }, 500) // 模拟加载延迟
-
-        return () => clearTimeout(timer)
+        }
     }, [query])
 
     if (isLoading) {
@@ -46,7 +74,7 @@ export const SearchResults: FC = () => {
             </div>
 
             {results.length > 0 ? (
-                <PostList posts={results} />
+                <PostList posts={results.map(adaptPaperToPost)} />
             ) : (
                 <div className="py-10 text-center">
                     <p className="text-lg text-gray-500">没有找到与 "{query}" 相关的结果</p>
@@ -56,4 +84,3 @@ export const SearchResults: FC = () => {
         </div>
     )
 }
- 

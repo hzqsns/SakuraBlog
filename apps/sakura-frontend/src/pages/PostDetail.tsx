@@ -1,19 +1,14 @@
 import { FC, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { mockPosts } from '@/lib/mockData'
-import { Post } from '@/types'
+import { loadPaperBySlug } from '@/utils/loadPapers'
+import { Paper } from '@/types/markdown'
 import { CalendarIcon, Clock, BookOpen, Hash } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { Catalogue } from '@/components/blog/Catalogue'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { Waline } from '@/components/comment'
-
-// 扩展Post类型以满足组件需求
-interface ExtendedPost extends Post {
-    readingTime?: string
-    wordCount?: string | number
-}
 
 // 扩展标题项类型，包含层级信息
 interface HeadingItem {
@@ -24,45 +19,30 @@ interface HeadingItem {
 
 export const PostDetail: FC = () => {
     const { slug } = useParams<{ slug: string }>()
-    const [post, setPost] = useState<ExtendedPost | null>(null)
+    const [paper, setPaper] = useState<Paper | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [activeHeading, setActiveHeading] = useState<string | null>(null)
 
     useEffect(() => {
         if (!slug) return
 
-        // 尝试多种方式查找文章
-        let foundPost = mockPosts.find(p => p.slug === slug) // 精确匹配
-
-        // 如果没找到，尝试不区分大小写的匹配
-        if (!foundPost) {
-            foundPost = mockPosts.find(p => p.slug?.toLowerCase() === slug.toLowerCase())
-        }
-
-        // 如果还是没找到，尝试通过ID查找
-        if (!foundPost && !isNaN(Number(slug))) {
-            const numId = Number(slug)
-            // 使用类型断言避免类型错误
-            foundPost = mockPosts.find(p => String(p.id) === String(numId))
-        }
-
-        if (foundPost) {
-            // 计算额外的字段
-            const extendedPost: ExtendedPost = {
-                ...foundPost,
-                // 计算阅读时间 (按照300字/分钟计算)
-                readingTime: `${Math.max(1, Math.ceil((foundPost.content?.length || 0) / 300))} min read`,
-                // 计算字数
-                wordCount: foundPost.content?.length || 0
+        const fetchPaper = async () => {
+            setIsLoading(true)
+            try {
+                const paperData = await loadPaperBySlug(slug)
+                if (paperData) {
+                    setPaper(paperData)
+                    setIsLoaded(true)
+                }
+            } catch (error) {
+                console.error(`Error loading paper with slug ${slug}:`, error)
+            } finally {
+                setIsLoading(false)
             }
-            setPost(extendedPost)
         }
 
-        // 提取标题
-        if (foundPost && foundPost.content) {
-            // 内容已加载，可以提取标题
-            setIsLoaded(true)
-        }
+        fetchPaper()
     }, [slug])
 
     // 提取markdown文本中的标题作为目录
@@ -92,7 +72,7 @@ export const PostDetail: FC = () => {
         return headings
     }, [])
 
-    const headings = post?.content ? extractHeadings(post.content) : []
+    const headings = paper?.content ? extractHeadings(paper.content) : []
 
     // 平滑滚动到目标位置
     const scrollToHeading = useCallback((id: string) => {
@@ -182,7 +162,34 @@ export const PostDetail: FC = () => {
         }
     }, [isLoaded, headings, activeHeading])
 
-    if (!post) {
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 py-4">
+                <div className="animate-pulse">
+                    <div className="w-full h-[60vh] bg-gray-200 rounded-2xl mb-8"></div>
+                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                        <div className="h-8 bg-gray-200 rounded mb-4 w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded mb-2 w-full"></div>
+                        <div className="h-4 bg-gray-200 rounded mb-2 w-5/6"></div>
+                        <div className="h-4 bg-gray-200 rounded w-4/6 mb-6"></div>
+
+                        <div className="space-y-4">
+                            {[...Array(8)].map((_, i) => (
+                                <div key={i}>
+                                    <div className="h-6 bg-gray-200 rounded mb-2 w-1/3"></div>
+                                    <div className="h-4 bg-gray-200 rounded mb-1 w-full"></div>
+                                    <div className="h-4 bg-gray-200 rounded mb-1 w-full"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (!paper) {
         return <div className="container mx-auto px-4 py-4">文章不存在</div>
     }
 
@@ -201,20 +208,20 @@ export const PostDetail: FC = () => {
                 <div className="w-full h-[60vh] relative">
                     <img
                         src={
-                            post.coverImage ||
+                            paper.coverImage ||
                             'https://images.unsplash.com/photo-1505673542670-a5e3ff5b8310?q=80&w=1974&auto=format&fit=crop'
                         }
-                        alt={post.title}
+                        alt={paper.title}
                         className="w-full h-full object-cover rounded-2xl"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl"></div>
                 </div>
 
-                <div className="absolute inset-0 flex flex-col justify-end items-center text-center px-6 pb-10 text-white">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6 text-white">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4">{paper.title}</h1>
 
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
-                        {post.tags?.map(tag => (
+                        {paper.tags?.map(tag => (
                             <span key={tag} className="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">
                                 <Hash className="inline h-4 w-4 mr-1" />
                                 {tag}
@@ -225,15 +232,15 @@ export const PostDetail: FC = () => {
                     <div className="flex flex-wrap justify-center gap-4 text-sm text-white/90">
                         <span className="flex items-center">
                             <CalendarIcon className="h-4 w-4 mr-1" />
-                            {formatDate(post.publishDate || new Date())}
+                            {formatDate(paper.publishDate || new Date().toISOString())}
                         </span>
                         <span className="flex items-center">
                             <Clock className="h-4 w-4 mr-1" />
-                            {post.readingTime}
+                            {paper.readingTime || `${Math.ceil(paper.content.length / 300)}分钟`}
                         </span>
                         <span className="flex items-center">
                             <BookOpen className="h-4 w-4 mr-1" />
-                            {post.wordCount} 字
+                            {paper.wordCount || paper.content.length} 字
                         </span>
                     </div>
                 </div>
@@ -244,9 +251,10 @@ export const PostDetail: FC = () => {
                 {/* 左侧目录和右侧文章内容并排 */}
                 <Catalogue headings={headings} activeHeading={activeHeading} onHeadingClick={scrollToHeading} />
 
-                <div className="flex-1 prose prose-lg max-w-full text-left" id="article-content">
+                <div className="flex-1 prose prose-lg max-w-full text-left markdown-body break-words" id="article-content">
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeRaw]}
                         components={{
                             h1: ({ ...props }) => <h1 id={createIdFromText(props.children)} {...props} />,
                             h2: ({ ...props }) => <h2 id={createIdFromText(props.children)} {...props} />,
@@ -256,7 +264,7 @@ export const PostDetail: FC = () => {
                             h6: ({ ...props }) => <h6 id={createIdFromText(props.children)} {...props} />
                         }}
                     >
-                        {post.content || ''}
+                        {paper.content || ''}
                     </ReactMarkdown>
                 </div>
             </div>
@@ -265,6 +273,7 @@ export const PostDetail: FC = () => {
             <div className="mt-12">
                 <Waline
                     serverURL="https://waline-comment-eta-three.vercel.app/"
+                    path={`/post/${paper.slug}`}
                     emoji={['//unpkg.com/@waline/emojis@1.2.0/weibo', '//unpkg.com/@waline/emojis@1.2.0/bmoji']}
                     reaction={[
                         'https://unpkg.com/@waline/emojis@1.2.0/bmoji/bmoji_give_love.png',

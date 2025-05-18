@@ -1,8 +1,8 @@
 import { useState, FormEvent, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Input } from './input'
-import { mockPosts } from '@/lib/mockData'
-import { Post } from '@/types'
+import { loadAllPapers } from '@/utils/loadPapers'
+import { Paper } from '@/types/markdown'
 
 interface SearchBoxProps {
     className?: string
@@ -11,11 +11,30 @@ interface SearchBoxProps {
 
 export function SearchBox({ className, placeholder = '搜索...' }: SearchBoxProps) {
     const [query, setQuery] = useState('')
-    const [suggestions, setSuggestions] = useState<Post[]>([])
+    const [suggestions, setSuggestions] = useState<Paper[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
+    const [papers, setPapers] = useState<Paper[]>([])
+    const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
     const suggestionsRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
+
+    // 加载所有文章
+    useEffect(() => {
+        const fetchPapers = async () => {
+            setIsLoading(true)
+            try {
+                const allPapers = await loadAllPapers()
+                setPapers(allPapers)
+            } catch (error) {
+                console.error('Failed to load papers:', error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchPapers()
+    }, [])
 
     // 处理点击外部关闭建议框
     useEffect(() => {
@@ -38,21 +57,21 @@ export function SearchBox({ className, placeholder = '搜索...' }: SearchBoxPro
 
     // 搜索建议
     useEffect(() => {
-        if (query.trim().length >= 1) {
-            const matchedPosts = mockPosts
-                .filter(post => {
-                    const searchableContent = [post.title, post.excerpt, ...(post.tags || [])].join(' ').toLowerCase()
+        if (query.trim().length >= 1 && papers.length > 0) {
+            const matchedPapers = papers
+                .filter(paper => {
+                    const searchableContent = [paper.title, paper.excerpt, ...(paper.tags || []), ...paper.category].join(' ').toLowerCase()
                     return searchableContent.includes(query.toLowerCase())
                 })
                 .slice(0, 5) // 限制显示5条结果
 
-            setSuggestions(matchedPosts)
+            setSuggestions(matchedPapers)
             setShowSuggestions(true)
         } else {
             setSuggestions([])
             setShowSuggestions(false)
         }
-    }, [query])
+    }, [query, papers])
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
@@ -75,39 +94,44 @@ export function SearchBox({ className, placeholder = '搜索...' }: SearchBoxPro
                 <Input
                     ref={inputRef}
                     type="search"
-                    placeholder={placeholder}
+                    placeholder={isLoading ? '加载中...' : placeholder}
                     className={`pl-8 ${className || ''}`}
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     onFocus={() => query.trim().length > 0 && setShowSuggestions(true)}
+                    disabled={isLoading}
                 />
                 <span className="absolute left-2 top-2.5">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4 text-gray-500"
-                    >
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.3-4.3" />
-                    </svg>
+                    {isLoading ? (
+                        <div className="animate-spin h-4 w-4 border-2 border-gray-300 rounded-full border-t-gray-500"></div>
+                    ) : (
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-4 w-4 text-gray-500"
+                        >
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                    )}
                 </span>
             </form>
 
             {showSuggestions && suggestions.length > 0 && (
                 <div ref={suggestionsRef} className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto">
                     <ul className="py-1">
-                        {suggestions.map(post => (
-                            <li key={post.id} className="px-4 py-2 hover:bg-gray-100">
-                                <Link to={`/post/${post.slug || post.id}`} className="block" onClick={handleSuggestionClick}>
-                                    <div className="font-medium">{post.title}</div>
-                                    <div className="text-sm text-gray-500 truncate">{post.excerpt}</div>
+                        {suggestions.map(paper => (
+                            <li key={paper.slug} className="px-4 py-2 hover:bg-gray-100">
+                                <Link to={`/post/${paper.slug}`} className="block" onClick={handleSuggestionClick}>
+                                    <div className="font-medium">{paper.title}</div>
+                                    <div className="text-sm text-gray-500 truncate">{paper.excerpt}</div>
                                 </Link>
                             </li>
                         ))}
