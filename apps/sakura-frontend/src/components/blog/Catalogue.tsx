@@ -125,7 +125,7 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
             const titleContent = getTitleContent(item.text)
 
             return (
-                <li key={item.id} className="mb-1">
+                <li key={item.id} className={`${depth > 0 ? 'mb-0' : 'mb-1'}`}>
                     <div
                         className={`flex items-center rounded transition-colors cursor-pointer ${
                             isActive ? 'bg-purple-50 text-purple-600 font-medium' : 'hover:bg-gray-50 text-gray-700'
@@ -140,7 +140,7 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
                             }
                         }}
                     >
-                        <div className={`flex items-center py-1.5 w-full toc-item-level-${depth + 1}`}>
+                        <div className={`flex items-center ${depth > 0 ? 'py-0.5' : 'py-1.5'} w-full toc-item-level-${depth + 1}`}>
                             {/* 标题内容 - 有数字前缀的特殊处理 */}
                             <div className="text-sm flex-grow">
                                 {titlePrefix && (
@@ -152,7 +152,7 @@ export const Catalogue: FC<CatalogueProps> = ({ headings, activeHeading, onHeadi
                     </div>
 
                     {/* 子标题 */}
-                    {hasChildren && <ul className="list-none pl-0 mt-0.5">{renderNestedHeadings(children, depth + 1)}</ul>}
+                    {hasChildren && <ul className="list-none pl-0 space-y-0">{renderNestedHeadings(children, depth + 1)}</ul>}
                 </li>
             )
         })
