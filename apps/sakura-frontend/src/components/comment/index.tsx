@@ -7,7 +7,7 @@ import React, { useEffect, useRef } from 'react'
 import { type WalineInstance, type WalineInitOptions, init } from '@waline/client'
 
 // 引入Waline默认样式
-import '@waline/client/style'
+import '@waline/client/waline.css'
 
 /**
  * Waline组件属性类型
