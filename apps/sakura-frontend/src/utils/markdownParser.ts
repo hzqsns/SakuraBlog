@@ -58,8 +58,12 @@ export function parseMarkdown(markdown: string): MarkdownData {
     const frontMatter = markdown.substring(3, endOfFrontMatter).trim()
 
     // 提取内容部分（元数据之后的所有内容）
+    // 正确处理元数据后的内容，移除第一个空行
+    const contentStartPos = endOfFrontMatter + 3
+    const content = markdown.substring(contentStartPos).trim()
+
     // 规范化内容中的换行符
-    result.content = normalizeLineBreaks(markdown.substring(endOfFrontMatter + 3).trim())
+    result.content = normalizeLineBreaks(content)
 
     // 解析元数据
     const lines = frontMatter.split('\n')
