@@ -1,12 +1,12 @@
 import { FC, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { PostList } from '@/components/blog/PostList'
+import { useParams } from 'react-router-dom'
 import { Paper } from '@/types/markdown'
 import { loadAllPapers } from '@/utils/loadPapers'
-import { ChevronLeft } from 'lucide-react'
+import { ArticleShow } from '@/components/blog/ArticleShow'
+import { Post } from '@/types'
 
 // 将Paper类型转换为PostList组件所需的Post类型
-const adaptPaperToPost = (paper: Paper) => ({
+const adaptPaperToPost = (paper: Paper): Post => ({
     id: paper.slug,
     title: paper.title,
     content: paper.content,
@@ -22,9 +22,8 @@ const adaptPaperToPost = (paper: Paper) => ({
 export const TagResults: FC = () => {
     const { tag } = useParams<{ tag: string }>()
     const decodedTag = tag ? decodeURIComponent(tag) : ''
-    const [results, setResults] = useState<Paper[]>([])
+    const [results, setResults] = useState<Post[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchTaggedPapers = async () => {
@@ -37,7 +36,7 @@ export const TagResults: FC = () => {
                 // 过滤出包含指定标签的文章
                 const taggedPapers = allPapers.filter(paper => paper.tags.some(t => t.toLowerCase() === decodedTag.toLowerCase()))
 
-                setResults(taggedPapers)
+                setResults(taggedPapers.map(adaptPaperToPost))
             } catch (error) {
                 console.error(`Error fetching papers with tag ${decodedTag}:`, error)
             } finally {
@@ -48,38 +47,15 @@ export const TagResults: FC = () => {
         fetchTaggedPapers()
     }, [decodedTag])
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-[300px]">
-                <div className="animate-spin h-8 w-8 border-4 border-gray-300 rounded-full border-t-gray-800"></div>
-            </div>
-        )
-    }
-
     return (
-        <div className="space-y-6 relative">
-            <div className="pb-4 border-b flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold">标签: {decodedTag}</h1>
-                    <p className="text-gray-500 mt-2">找到 {results.length} 篇文章</p>
-                </div>
-                <button
-                    onClick={() => navigate(-1)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors flex items-center"
-                >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    返回
-                </button>
-            </div>
-
-            {results.length > 0 ? (
-                <PostList posts={results.map(adaptPaperToPost)} />
-            ) : (
-                <div className="py-10 text-center">
-                    <p className="text-lg text-gray-500">没有找到标签为 "{decodedTag}" 的文章</p>
-                    <p className="mt-2 text-gray-400">请尝试查看其他标签</p>
-                </div>
-            )}
-        </div>
+        <ArticleShow
+            title={`标签: ${decodedTag}`}
+            results={results}
+            isLoading={isLoading}
+            emptyMessage={{
+                title: `没有找到标签为 "${decodedTag}" 的文章`,
+                suggestion: '请尝试查看其他标签'
+            }}
+        />
     )
 }

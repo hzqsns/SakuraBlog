@@ -1,12 +1,12 @@
 import { FC, useEffect, useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import { PostList } from '@/components/blog/PostList'
+import { useSearchParams } from 'react-router-dom'
 import { Paper } from '@/types/markdown'
 import { loadAllPapers } from '@/utils/loadPapers'
-import { ChevronLeft } from 'lucide-react'
+import { ArticleShow } from '@/components/blog/ArticleShow'
+import { Post } from '@/types'
 
 // 将Paper类型转换为PostList组件所需的Post类型
-const adaptPaperToPost = (paper: Paper) => ({
+const adaptPaperToPost = (paper: Paper): Post => ({
     id: paper.slug, // 使用slug作为id
     title: paper.title,
     content: paper.content,
@@ -22,9 +22,8 @@ const adaptPaperToPost = (paper: Paper) => ({
 export const SearchResults: FC = () => {
     const [searchParams] = useSearchParams()
     const query = searchParams.get('q') || ''
-    const [results, setResults] = useState<Paper[]>([])
+    const [results, setResults] = useState<Post[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -43,7 +42,7 @@ export const SearchResults: FC = () => {
                     return searchableContent.includes(query.toLowerCase())
                 })
 
-                setResults(searchResults)
+                setResults(searchResults.map(adaptPaperToPost))
                 setIsLoading(false)
             } catch (error) {
                 console.error('Error searching papers:', error)
@@ -60,38 +59,15 @@ export const SearchResults: FC = () => {
         }
     }, [query])
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-[300px]">
-                <div className="animate-spin h-8 w-8 border-4 border-gray-300 rounded-full border-t-gray-800"></div>
-            </div>
-        )
-    }
-
     return (
-        <div className="space-y-6 relative">
-            <div className="pb-4 border-b flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold">搜索结果: {query}</h1>
-                    <p className="text-gray-500 mt-2">找到 {results.length} 个结果</p>
-                </div>
-                <button
-                    onClick={() => navigate(-1)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors flex items-center"
-                >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    返回
-                </button>
-            </div>
-
-            {results.length > 0 ? (
-                <PostList posts={results.map(adaptPaperToPost)} />
-            ) : (
-                <div className="py-10 text-center">
-                    <p className="text-lg text-gray-500">没有找到与 "{query}" 相关的结果</p>
-                    <p className="mt-2 text-gray-400">请尝试使用其他关键词</p>
-                </div>
-            )}
-        </div>
+        <ArticleShow
+            title={`搜索结果: ${query}`}
+            results={results}
+            isLoading={isLoading}
+            emptyMessage={{
+                title: `没有找到与 "${query}" 相关的结果`,
+                suggestion: '请尝试使用其他关键词'
+            }}
+        />
     )
 }
