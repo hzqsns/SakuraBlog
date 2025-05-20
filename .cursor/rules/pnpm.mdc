@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 ## 包管理工具
 以后都用pnpm来运行相关命令,不要再用npm了

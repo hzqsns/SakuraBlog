@@ -4,6 +4,7 @@
  */
 
 import { MarkdownData } from '@/types/markdown'
+import { generateSlug } from '@/lib/utils'
 
 /**
  * 规范化markdown内容中的换行符
@@ -121,6 +122,32 @@ export function parseMarkdown(markdown: string): MarkdownData {
 }
 
 /**
+ * 解析Markdown并动态生成slug
+ * 此函数会在slug为空时生成基于标题的slug
+ * @param markdown 原始markdown文本内容
+ * @returns Promise<MarkdownData> 解析后的数据（包含生成的slug）
+ */
+export async function parseMarkdownWithSlug(markdown: string): Promise<MarkdownData> {
+    // 先解析文档基本信息
+    const result = parseMarkdown(markdown)
+
+    // 如果没有指定slug或slug为空，则使用标题和标签动态生成
+    if (!result.slug || result.slug.trim() === '') {
+        try {
+            // 使用翻译功能生成基于标题的slug
+            result.slug = await generateSlug(result.title, result.tags, result.publishDate || result.date)
+        } catch (error) {
+            console.error('动态生成slug失败:', error)
+            // 失败时使用一个默认的基于日期的slug
+            const now = new Date()
+            result.slug = `post-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${now.getTime().toString().slice(-6)}`
+        }
+    }
+
+    return result
+}
+
+/**
  * 从文件路径中读取并解析Markdown文件
  * 此函数适用于浏览器环境下的文件读取，比如通过fetch API
  *
@@ -135,7 +162,7 @@ export async function loadMarkdownFile(filePath: string): Promise<MarkdownData> 
         }
 
         const markdownText = await response.text()
-        return parseMarkdown(markdownText)
+        return parseMarkdownWithSlug(markdownText)
     } catch (error) {
         console.error('Error loading markdown file:', error)
         throw error

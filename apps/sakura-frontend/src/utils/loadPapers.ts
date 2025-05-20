@@ -1,4 +1,4 @@
-import { parseMarkdown } from './markdownParser'
+import { parseMarkdownWithSlug } from './markdownParser'
 import { Paper } from '@/types/markdown'
 
 /**
@@ -17,7 +17,9 @@ export async function loadAllPapers(): Promise<Paper[]> {
             try {
                 // 导入模块内容
                 const markdownText = await modules[path]()
-                const paperData = parseMarkdown(markdownText) as Paper
+
+                // 使用支持动态slug生成的解析函数
+                const paperData = (await parseMarkdownWithSlug(markdownText)) as Paper
 
                 // 计算阅读时间（假设一分钟阅读200个单词）
                 const wordCount = paperData.content.split(/\s+/).length

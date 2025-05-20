@@ -8,8 +8,8 @@ export interface Post {
     publishDate: string
     tags: string[]
     category: string
-    coverImage?: string
-    slug?: string
+    coverImage: string
+    slug: string
 }
 
 // 用户类型
@@ -63,3 +63,45 @@ export interface ApiResponse<T> {
 
 // 重新导出markdown.ts中的类型
 export * from './markdown'
+
+// 扩展Window接口，添加global属性
+declare global {
+    interface Window {
+        global: Window
+    }
+}
+
+// 博客设置类型
+export interface BlogSettings {
+    title: string
+    description: string
+    logo: string
+    authorName: string
+    authorAvatar: string
+    authorBio: string
+    social: {
+        twitter?: string
+        github?: string
+        linkedin?: string
+        instagram?: string
+    }
+    footer: {
+        text: string
+        links: Array<{
+            label: string
+            url: string
+        }>
+    }
+}
+
+export interface Comment {
+    id: string
+    content: string
+    author: {
+        name: string
+        avatar?: string
+    }
+    createdAt: string
+    replies?: Comment[]
+    likes: number
+}
