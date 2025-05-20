@@ -225,9 +225,9 @@ export const PostDetail: FC = () => {
                             <Link
                                 key={tag}
                                 to={`/tag/${tag}`}
-                                className="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm hover:bg-white/30 transition-colors"
+                                className="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm hover:bg-white/30 transition-colors flex items-center"
                             >
-                                <Hash className="inline h-4 w-4 mr-1" />
+                                <Hash className="h-4 w-4 mr-1" />
                                 {tag}
                             </Link>
                         ))}
