@@ -1,8 +1,9 @@
 import { FC, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { PostList } from '@/components/blog/PostList'
 import { Paper } from '@/types/markdown'
 import { loadAllPapers } from '@/utils/loadPapers'
+import { ChevronLeft } from 'lucide-react'
 
 // 将Paper类型转换为PostList组件所需的Post类型
 const adaptPaperToPost = (paper: Paper) => ({
@@ -23,6 +24,7 @@ export const TagResults: FC = () => {
     const decodedTag = tag ? decodeURIComponent(tag) : ''
     const [results, setResults] = useState<Paper[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchTaggedPapers = async () => {
@@ -55,10 +57,19 @@ export const TagResults: FC = () => {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="pb-4 border-b">
-                <h1 className="text-2xl font-bold">标签: {decodedTag}</h1>
-                <p className="text-gray-500 mt-2">找到 {results.length} 篇文章</p>
+        <div className="space-y-6 relative">
+            <div className="pb-4 border-b flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold">标签: {decodedTag}</h1>
+                    <p className="text-gray-500 mt-2">找到 {results.length} 篇文章</p>
+                </div>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors flex items-center"
+                >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    返回
+                </button>
             </div>
 
             {results.length > 0 ? (
