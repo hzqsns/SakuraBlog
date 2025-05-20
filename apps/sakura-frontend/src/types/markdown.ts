@@ -12,6 +12,7 @@ export interface MarkdownData {
     publishDate: string
     coverImage: string
     slug: string
+    originalSlug?: string // 前置元数据中的原始slug
     date: string
     tags: string[]
     category: string[]
@@ -26,4 +27,5 @@ export interface Paper extends MarkdownData {
     // 扩展的额外字段
     readingTime?: string // 阅读时间估计
     wordCount?: number // 单词数量
+    filePath?: string // 文件路径信息
 }

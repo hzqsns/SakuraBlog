@@ -125,17 +125,35 @@ export function parseMarkdown(markdown: string): MarkdownData {
  * 解析Markdown并动态生成slug
  * 此函数会在slug为空时生成基于标题的slug
  * @param markdown 原始markdown文本内容
+ * @param fileName 可选的文件名（不含扩展名）
+ * @param dirName 可选的目录名
  * @returns Promise<MarkdownData> 解析后的数据（包含生成的slug）
  */
-export async function parseMarkdownWithSlug(markdown: string): Promise<MarkdownData> {
+export async function parseMarkdownWithSlug(markdown: string, fileName?: string, dirName?: string): Promise<MarkdownData> {
     // 先解析文档基本信息
     const result = parseMarkdown(markdown)
+
+    // 保存原始slug，如果前置元数据中有定义的话
+    if (result.slug) {
+        result.originalSlug = result.slug
+    }
 
     // 如果没有指定slug或slug为空，则使用标题和标签动态生成
     if (!result.slug || result.slug.trim() === '') {
         try {
-            // 使用翻译功能生成基于标题的slug
-            result.slug = await generateSlug(result.title, result.tags, result.publishDate || result.date)
+            // 如果提供了文件名和目录名，优先使用它们生成slug
+            if (fileName && dirName) {
+                // 如果文件名不是index，使用dirName-fileName格式
+                if (fileName.toLowerCase() !== 'index') {
+                    result.slug = `${dirName.toLowerCase()}-${fileName.toLowerCase()}`
+                } else {
+                    // 如果是index.md，则尝试使用标题生成slug
+                    result.slug = await generateSlug(result.title, result.tags, result.publishDate || result.date)
+                }
+            } else {
+                // 无文件名和目录名信息时，使用翻译功能生成基于标题的slug
+                result.slug = await generateSlug(result.title, result.tags, result.publishDate || result.date)
+            }
         } catch (error) {
             console.error('动态生成slug失败:', error)
             // 失败时使用一个默认的基于日期的slug
