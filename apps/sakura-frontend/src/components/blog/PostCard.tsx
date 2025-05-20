@@ -93,9 +93,9 @@ export const PostCard: FC<PostCardProps> = ({ post }) => {
 
                         {/* 标签 */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                            {post.tags.map(tag => (
+                            {post.tags.map((tag, index) => (
                                 <span
-                                    key={tag}
+                                    key={`${post.id}-${tag}-${index}`}
                                     className="px-3 py-1 bg-gray-600 rounded-full text-sm transition-colors duration-300 hover:bg-blue-600 hover:text-white cursor-pointer"
                                     onClick={e => {
                                         e.preventDefault()
