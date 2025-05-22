@@ -44,6 +44,36 @@
 /* 目录容器相关样式 */
 .toc-container {
     align-self: flex-start;
+    width: 16rem; /* 对应w-64 */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0); /* 初始位置 */
+
+    &.catalogue-fixed {
+        position: fixed;
+        /* 替换slideDown动画，改用更平滑的过渡 */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, opacity;
+    }
+
+    /* 滚动条样式 */
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #c5c5c5;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #a0a0a0;
+    }
 }
 
 /* 目录项缩进样式 */
@@ -66,4 +96,20 @@
     &-level-6 {
         padding-left: 80px;
     }
+}
+
+/* 活动标题的滚动效果 */
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toc-container li div.bg-purple-50 {
+    animation: fadeInLeft 0.3s ease-out;
 }

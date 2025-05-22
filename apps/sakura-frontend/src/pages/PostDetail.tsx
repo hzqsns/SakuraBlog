@@ -15,6 +15,7 @@ interface HeadingItem {
     id: string
     text: string
     level: number
+    index?: number // 添加索引属性
 }
 
 export const PostDetail: FC = () => {
@@ -23,6 +24,9 @@ export const PostDetail: FC = () => {
     const [isLoaded, setIsLoaded] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [activeHeading, setActiveHeading] = useState<string | null>(null)
+
+    // 导航栏高度偏移量，根据实际导航栏高度调整
+    const NAVBAR_HEIGHT_OFFSET = 80
 
     useEffect(() => {
         if (!slug) return
@@ -45,7 +49,7 @@ export const PostDetail: FC = () => {
         fetchPaper()
     }, [slug])
 
-    // 提取markdown文本中的标题作为目录
+    // 提取markdown文本中的标题作为目录，并添加序号
     const extractHeadings = useCallback((markdown: string): HeadingItem[] => {
         if (!markdown) return []
 
@@ -54,18 +58,27 @@ export const PostDetail: FC = () => {
         const headings: HeadingItem[] = []
         let match
 
+        // 为不同级别的标题维护计数器
+        const counters: { [level: number]: number } = {}
+
         while ((match = headingRegex.exec(markdown)) !== null) {
             const level = match[1].length // 标题级别 (# 的数量)
             const text = match[2].trim()
-            const id = text
-                .toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-')
+
+            // 更新当前级别的计数器
+            if (!counters[level]) {
+                counters[level] = 0
+            }
+            counters[level]++
+
+            // 生成基于数字的ID
+            const id = `heading-${headings.length + 1}`
 
             headings.push({
                 id,
                 text,
-                level
+                level,
+                index: headings.length + 1
             })
         }
 
@@ -74,18 +87,28 @@ export const PostDetail: FC = () => {
 
     const headings = paper?.content ? extractHeadings(paper.content) : []
 
-    // 平滑滚动到目标位置
-    const scrollToHeading = useCallback((id: string) => {
-        const element = document.getElementById(id)
-        if (element) {
-            // 使用scrollIntoView实现平滑滚动
-            element.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start' // 确保标题在视窗顶部
-            })
-            setActiveHeading(id)
-        }
-    }, [])
+    // 平滑滚动到目标位置，添加偏移量以避免被导航栏遮挡
+    const scrollToHeading = useCallback(
+        (id: string) => {
+            const element = document.getElementById(id)
+            if (element) {
+                // 获取元素位置
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+
+                // 使用自定义滚动，计入偏移量
+                window.scrollTo({
+                    top: elementPosition - NAVBAR_HEIGHT_OFFSET,
+                    behavior: 'smooth'
+                })
+
+                setActiveHeading(id)
+
+                // 更新URL而不引起页面跳转
+                window.history.replaceState(null, '', `#${id}`)
+            }
+        },
+        [NAVBAR_HEIGHT_OFFSET]
+    )
 
     // 监听URL hash变化，实现通过URL直接跳转
     useEffect(() => {
@@ -126,8 +149,8 @@ export const PostDetail: FC = () => {
                 if (!element) continue
 
                 const rect = element.getBoundingClientRect()
-                // 在标题进入视窗顶部150px范围内时激活
-                if (rect.top >= 0 && rect.top <= 150) {
+                // 在标题进入视窗顶部加上导航栏高度的范围内时激活
+                if (rect.top >= 0 && rect.top <= 150 + NAVBAR_HEIGHT_OFFSET) {
                     if (activeHeading !== id) {
                         setActiveHeading(id)
                         // 更新URL而不引起页面跳转
@@ -160,7 +183,7 @@ export const PostDetail: FC = () => {
         return () => {
             window.removeEventListener('scroll', handleScroll)
         }
-    }, [isLoaded, headings, activeHeading])
+    }, [isLoaded, headings, activeHeading, NAVBAR_HEIGHT_OFFSET])
 
     if (isLoading) {
         return (
@@ -193,12 +216,9 @@ export const PostDetail: FC = () => {
         return <div className="container mx-auto px-4 py-4">文章不存在</div>
     }
 
-    // 辅助函数：创建ID
-    const createIdFromText = (text: string | React.ReactNode) => {
-        return String(text)
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
+    // 辅助函数：为标题创建固定格式的ID（heading-1, heading-2, ...）
+    const createHeadingId = (index: number): string => {
+        return `heading-${index}`
     }
 
     return (
@@ -212,7 +232,7 @@ export const PostDetail: FC = () => {
                             'https://images.unsplash.com/photo-1505673542670-a5e3ff5b8310?q=80&w=1974&auto=format&fit=crop'
                         }
                         alt={paper.title}
-                        className="w-full h-full object-cover rounded-2xl"
+                        className="w-full h-full object-cover rounded-2xl article-cover-image"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl"></div>
                 </div>
@@ -251,21 +271,50 @@ export const PostDetail: FC = () => {
             </div>
 
             {/* 文章内容区域 */}
-            <div className="flex flex-col md:flex-row gap-8 bg-white rounded-xl shadow-sm p-6">
-                {/* 左侧目录和右侧文章内容并排 */}
+            <div className="flex flex-col md:flex-row gap-8">
+                {/* 左侧目录 */}
                 <Catalogue headings={headings} activeHeading={activeHeading} onHeadingClick={scrollToHeading} />
 
-                <div className="flex-1 prose prose-lg max-w-full text-left markdown-body break-words" id="article-content">
+                {/* 右侧文章内容 */}
+                <div
+                    className="flex-1 bg-white rounded-xl shadow-sm p-6 prose prose-lg max-w-full text-left markdown-body break-words"
+                    id="article-content"
+                >
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw]}
                         components={{
-                            h1: ({ ...props }) => <h1 id={createIdFromText(props.children)} {...props} />,
-                            h2: ({ ...props }) => <h2 id={createIdFromText(props.children)} {...props} />,
-                            h3: ({ ...props }) => <h3 id={createIdFromText(props.children)} {...props} />,
-                            h4: ({ ...props }) => <h4 id={createIdFromText(props.children)} {...props} />,
-                            h5: ({ ...props }) => <h5 id={createIdFromText(props.children)} {...props} />,
-                            h6: ({ ...props }) => <h6 id={createIdFromText(props.children)} {...props} />
+                            // 使用序号创建标题ID
+                            h1: ({ node, ...props }) => {
+                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
+                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
+                                return <h1 id={id} {...props} />
+                            },
+                            h2: ({ node, ...props }) => {
+                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
+                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
+                                return <h2 id={id} {...props} />
+                            },
+                            h3: ({ node, ...props }) => {
+                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
+                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
+                                return <h3 id={id} {...props} />
+                            },
+                            h4: ({ node, ...props }) => {
+                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
+                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
+                                return <h4 id={id} {...props} />
+                            },
+                            h5: ({ node, ...props }) => {
+                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
+                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
+                                return <h5 id={id} {...props} />
+                            },
+                            h6: ({ node, ...props }) => {
+                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
+                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
+                                return <h6 id={id} {...props} />
+                            }
                         }}
                     >
                         {paper.content || ''}
