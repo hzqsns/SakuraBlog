@@ -3,6 +3,9 @@ import { PostList } from '@/components/blog/PostList'
 import { loadAllPapers } from '@/utils/loadPapers'
 import { Paper } from '@/types/markdown'
 
+// 每页显示的文章数量
+const ITEMS_PER_PAGE = 5
+
 // 将Paper类型转换为PostList组件所需的Post类型
 const adaptPaperToPost = (paper: Paper) => ({
     id: paper.slug,
@@ -18,7 +21,10 @@ const adaptPaperToPost = (paper: Paper) => ({
 })
 
 export const Home: FC = () => {
-    const [papers, setPapers] = useState<Paper[]>([])
+    const [allPapers, setAllPapers] = useState<Paper[]>([])
+    const [displayedPapers, setDisplayedPapers] = useState<Paper[]>([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [hasMore, setHasMore] = useState(true)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
 
@@ -27,8 +33,15 @@ export const Home: FC = () => {
         const fetchPapers = async () => {
             setIsLoading(true)
             try {
-                const allPapers = await loadAllPapers()
-                setPapers(allPapers)
+                const papers = await loadAllPapers()
+                setAllPapers(papers)
+
+                // 初始只加载第一页文章
+                const initialPapers = papers.slice(0, ITEMS_PER_PAGE)
+                setDisplayedPapers(initialPapers)
+
+                // 判断是否还有更多文章
+                setHasMore(papers.length > ITEMS_PER_PAGE)
 
                 // 添加短暂延迟以便过渡动画更加平滑
                 setTimeout(() => {
@@ -43,6 +56,18 @@ export const Home: FC = () => {
 
         fetchPapers()
     }, [])
+
+    // 加载更多文章
+    const loadMore = () => {
+        const nextPage = currentPage + 1
+        const nextPageItems = allPapers.slice(0, nextPage * ITEMS_PER_PAGE)
+
+        setDisplayedPapers(nextPageItems)
+        setCurrentPage(nextPage)
+
+        // 判断是否还有更多文章
+        setHasMore(nextPageItems.length < allPapers.length)
+    }
 
     if (isLoading && !isLoaded) {
         return (
@@ -69,7 +94,7 @@ export const Home: FC = () => {
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
         >
-            <PostList posts={papers.map(adaptPaperToPost)} />
+            <PostList posts={displayedPapers.map(adaptPaperToPost)} hasMore={hasMore} onLoadMore={loadMore} />
         </div>
     )
 }

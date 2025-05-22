@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { Post } from '@/types'
 import { formatDate, getPostUrl } from '@/lib/utils'
 import { Link, useNavigate } from 'react-router-dom'
+import './PostList.less'
 
 interface PostCardProps {
     post: Post
@@ -16,32 +17,34 @@ export const PostCard: FC<PostCardProps> = ({ post }) => {
     // 使用工具函数生成URL
     const postUrl = getPostUrl(post)
 
+    const handleTagClick = (e: React.MouseEvent, tag: string) => {
+        e.preventDefault()
+        e.stopPropagation()
+        navigate(`/tag/${encodeURIComponent(tag)}`)
+    }
+
     return (
-        <Link to={postUrl} className="block group">
-            <div className="flex overflow-hidden rounded-lg transform transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl">
-                {/* 左侧缩略图 */}
-                <div className="w-[28%] relative overflow-hidden">
-                    <img
-                        src={post.coverImage}
-                        alt={post.title}
-                        className="object-cover w-full h-full max-h-64 transition-transform duration-500 group-hover:scale-110"
-                        onError={e => {
-                            const target = e.target as HTMLImageElement
-                            target.onerror = null
-                            target.src = 'https://via.placeholder.com/800x600?text=Sakura'
-                        }}
-                    />
-                    {/* 悬停时显示的渐变遮罩 */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
+        <Link to={postUrl} className="block">
+            <div className="post-card-hover rounded-lg overflow-hidden">
+                <div className="flex flex-row overflow-hidden bg-gradient-to-r from-gray-700 to-gray-900 rounded-lg">
+                    {/* 左侧图片区域 */}
+                    <div className="relative w-[38%] overflow-hidden">
+                        <div style={{ paddingBottom: '75%' }} className="relative img-container">
+                            <img
+                                src={post.coverImage}
+                                alt={post.title}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                onError={e => {
+                                    const target = e.target as HTMLImageElement
+                                    target.onerror = null
+                                    target.src = 'https://via.placeholder.com/800x600?text=Sakura'
+                                }}
+                            />
+                        </div>
+                    </div>
 
-                {/* 右侧内容区域 */}
-                <div className="flex-1 p-6 flex flex-col justify-between bg-gradient-to-r from-gray-700 to-gray-900 text-white relative overflow-hidden">
-                    {/* 动态背景效果 */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-gray-800/0 via-gray-700/10 to-gray-800/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -translate-x-full group-hover:translate-x-0"></div>
-
-                    {/* 内容层 */}
-                    <div className="relative z-10">
+                    {/* 右侧内容区域 */}
+                    <div className="flex-1 p-6 text-white">
                         {/* 顶部信息栏 */}
                         <div className="flex justify-between items-center mb-3">
                             {/* 日期 */}
@@ -89,19 +92,17 @@ export const PostCard: FC<PostCardProps> = ({ post }) => {
                         </div>
 
                         {/* 标题 */}
-                        <h2 className="text-2xl font-bold mb-4 transition-all duration-300 group-hover:text-blue-200">{post.title}</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-white transition-colors duration-300 hover:text-blue-200">
+                            {post.title}
+                        </h2>
 
                         {/* 标签 */}
                         <div className="flex flex-wrap gap-2 mb-4">
                             {post.tags.map((tag, index) => (
                                 <span
                                     key={`${post.id}-${tag}-${index}`}
-                                    className="px-3 py-1 bg-gray-600 rounded-full text-sm transition-colors duration-300 hover:bg-blue-600 hover:text-white cursor-pointer"
-                                    onClick={e => {
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        navigate(`/tag/${encodeURIComponent(tag)}`)
-                                    }}
+                                    className="px-3 py-1 bg-gray-600 rounded-full text-sm transition-colors duration-300 hover:bg-gray-500 hover:text-white cursor-pointer"
+                                    onClick={e => handleTagClick(e, tag)}
                                 >
                                     {tag}
                                 </span>
@@ -109,15 +110,13 @@ export const PostCard: FC<PostCardProps> = ({ post }) => {
                         </div>
 
                         {/* 内容摘要 */}
-                        <p className="text-gray-300 line-clamp-2 transition-all duration-300 group-hover:text-white">
-                            {post.excerpt || post.content.substring(0, 150)}
-                        </p>
+                        <p className="text-gray-300 line-clamp-2">{post.excerpt || post.content.substring(0, 150)}</p>
 
-                        {/* 阅读更多指示器，悬停时显示 */}
-                        <div className="mt-4 text-blue-300 font-medium opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center">
+                        {/* 阅读更多 */}
+                        <div className="mt-4 text-gray-300 font-medium flex items-center opacity-80 hover:opacity-100 transition-opacity duration-300">
                             阅读更多
                             <svg
-                                className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300"
+                                className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
