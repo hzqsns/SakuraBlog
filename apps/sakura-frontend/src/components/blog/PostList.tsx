@@ -11,7 +11,7 @@ interface PostListProps {
 
 export const PostList: FC<PostListProps> = ({ posts, hasMore = false, onLoadMore }) => {
     return (
-        <div className="space-y-10">
+        <div className="space-y-8">
             {posts.length === 0 ? (
                 <div className="text-center py-10">
                     <p className="text-gray-500">没有找到文章</p>
@@ -19,10 +19,10 @@ export const PostList: FC<PostListProps> = ({ posts, hasMore = false, onLoadMore
             ) : (
                 <>
                     <div className="bg-white bg-opacity-95 rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div className="divide-y divide-gray-100">
+                        <div className="flex flex-col gap-4 p-4">
                             {posts.map((post, index) => (
-                                <div key={post.id} className="p-4">
-                                    <PostCard post={post} />
+                                <div key={post.id} className="post-list-item">
+                                    <PostCard post={post} isEven={index % 2 === 0} />
                                 </div>
                             ))}
                         </div>

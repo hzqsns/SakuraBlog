@@ -29,6 +29,7 @@
 /* 图片填充容器 */
 .img-container {
     overflow: hidden;
+    border-radius: 0;
 }
 
 .img-container img {
@@ -38,4 +39,26 @@
 
 .post-card-hover:hover .img-container img {
     transform: scale(1.08);
+}
+
+/* 交错布局样式 */
+.alternate-layout-even {
+    background: linear-gradient(to right, #374151, #1f2937);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.alternate-layout-odd {
+    background: linear-gradient(to left, #374151, #1f2937);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 确保第一个和最后一个卡片有适当的边距 */
+.post-list-item:first-child {
+    margin-top: 0.5rem;
+}
+
+.post-list-item:last-child {
+    margin-bottom: 0.5rem;
 }
