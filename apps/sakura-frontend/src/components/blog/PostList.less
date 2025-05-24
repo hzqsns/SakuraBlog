@@ -20,6 +20,9 @@
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
+    /* 确保所有卡片高度一致 */
+    min-height: 280px;
+    height: auto;
 }
 
 .post-card-hover:hover {
@@ -30,11 +33,18 @@
 .img-container {
     overflow: hidden;
     border-radius: 0;
+    /* 确保图片容器填满整个高度 */
+    height: 100%;
+    min-height: 280px;
 }
 
 .img-container img {
     transition: transform 0.5s ease-out;
     transform: scale(1);
+    /* 确保图片完全填充容器 */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .post-card-hover:hover .img-container img {
@@ -46,12 +56,18 @@
     background: linear-gradient(to right, #374151, #1f2937);
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* 确保高度一致 */
+    min-height: 280px;
+    height: auto;
 }
 
 .alternate-layout-odd {
     background: linear-gradient(to left, #374151, #1f2937);
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* 确保高度一致 */
+    min-height: 280px;
+    height: auto;
 }
 
 /* 确保第一个和最后一个卡片有适当的边距 */

@@ -39,8 +39,8 @@ export function Header() {
             className={`
                 fixed top-0 left-0 right-0 z-50 w-full 
                 transition-all duration-300 ease-in-out
-                ${scrolled ? 'shadow-md bg-white/95 backdrop-blur-md' : 'bg-white/80'}
-                border-b border-gray-200/70
+                ${scrolled ? 'shadow-lg bg-white/90 backdrop-blur-md' : 'bg-white/50 backdrop-blur-sm'}
+                border-b border-purple-200/20
             `}
         >
             <div className="container flex items-center justify-between h-16 px-4">

@@ -15,12 +15,14 @@ export function Layout({ children }: PropsWithChildren) {
     }, [])
 
     return (
-        <div className="flex flex-col min-h-svh bg-gray-100 relative overflow-hidden">
-            {/* 背景装饰效果 */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div className="absolute -top-20 -right-20 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+        <div className="flex flex-col min-h-svh relative overflow-hidden">
+            {/* 淡紫到淡蓝到白色的渐变背景 */}
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-100 via-sky-100 to-white">
+                {/* 添加一些细微的云朵点缀 */}
+                <div className="absolute top-20 right-[20%] w-28 h-10 bg-white/40 rounded-full blur-sm"></div>
+                <div className="absolute top-36 left-[15%] w-36 h-12 bg-white/35 rounded-full blur-sm"></div>
+                <div className="absolute top-52 right-[65%] w-32 h-11 bg-white/30 rounded-full blur-sm"></div>
+                <div className="absolute top-72 left-[70%] w-24 h-8 bg-white/25 rounded-full blur-sm"></div>
             </div>
 
             {/* 导航栏 */}
@@ -29,7 +31,7 @@ export function Layout({ children }: PropsWithChildren) {
             {/* 添加顶部间距，为固定导航栏腾出空间 */}
             <div className="h-16"></div>
 
-            <main className="container mx-auto max-w-7xl flex-1 py-6 px-4 z-10">
+            <main className="container mx-auto max-w-7xl flex-1 py-6 px-4 z-10 relative">
                 <div className="flex gap-6">
                     {/* 主要内容区域 */}
                     <div className="flex-1">{children}</div>
