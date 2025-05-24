@@ -7,6 +7,8 @@ export function Header() {
     const location = useLocation()
     // 用于跟踪滚动状态的状态变量
     const [scrolled, setScrolled] = useState(false)
+    // 用于跟踪悬停状态的状态变量
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
     const isActive = (path: string) => location.pathname === path
 
@@ -31,68 +33,134 @@ export function Header() {
     }, []) // 空依赖数组，只在组件挂载和卸载时运行
 
     return (
-        // 添加固定定位和样式
-        // fixed：保持固定在视口顶部
-        // transition-all：添加过渡动画
-        // 滚动后添加阴影和不同的背景色
         <header
             className={`
                 fixed top-0 left-0 right-0 z-50 w-full 
-                transition-all duration-300 ease-in-out
-                ${scrolled ? 'shadow-lg bg-white/90 backdrop-blur-md' : 'bg-white/50 backdrop-blur-sm'}
-                border-b border-purple-200/20
+                transition-all duration-500 ease-out
+                ${
+                    scrolled
+                        ? 'shadow-lg bg-white/80 backdrop-blur-xl border-b border-purple-100/40'
+                        : 'bg-white/30 backdrop-blur-sm border-b border-purple-100/20'
+                }
             `}
         >
             <div className="container flex items-center justify-between h-16 px-4">
                 <div className="flex items-center gap-2">
                     <Link to="/">
-                        <h1 className="text-xl font-bold">Sakura</h1>
+                        <h1 className="text-xl font-bold text-gray-900 hover:text-purple-600 transition-colors duration-300">Sakura</h1>
                     </Link>
                 </div>
 
                 <NavigationMenu>
-                    <NavigationMenuList>
+                    <NavigationMenuList className="flex items-center space-x-1">
                         <NavigationMenuItem>
-                            <Link to="/">
+                            <Link
+                                to="/"
+                                className="nav-link-item"
+                                onMouseEnter={() => setHoveredItem('home')}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
                                 <div
-                                    className={`group inline-flex h-10 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                                        isActive('/') ? 'bg-gray-100/50  font-bold' : ''
-                                    }`}
+                                    className={`
+                                        relative px-4 py-2 text-sm font-medium text-gray-700 
+                                        transition-all duration-300 ease-out
+                                        hover:text-gray-900
+                                        ${isActive('/') ? 'text-gray-900 font-semibold' : ''}
+                                    `}
                                 >
                                     首页
+                                    {/* 下划线效果 - 根据悬停状态显示 */}
+                                    <div
+                                        className={`
+                                            absolute bottom-0 left-1/2 h-0.5 bg-gradient-to-r from-purple-400 to-blue-400
+                                            transition-all duration-300 ease-out transform -translate-x-1/2
+                                            ${hoveredItem === 'home' ? 'w-full opacity-100' : 'w-0 opacity-0'}
+                                        `}
+                                    />
                                 </div>
                             </Link>
                         </NavigationMenuItem>
+
                         <NavigationMenuItem>
-                            <Link to="/about">
+                            <Link
+                                to="/about"
+                                className="nav-link-item"
+                                onMouseEnter={() => setHoveredItem('about')}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
                                 <div
-                                    className={`group inline-flex h-10 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                                        isActive('/about') ? 'bg-gray-100/50' : ''
-                                    }`}
+                                    className={`
+                                        relative px-4 py-2 text-sm font-medium text-gray-700 
+                                        transition-all duration-300 ease-out
+                                        hover:text-gray-900
+                                        ${isActive('/about') ? 'text-gray-900 font-semibold' : ''}
+                                    `}
                                 >
                                     关于我
+                                    {/* 下划线效果 - 根据悬停状态显示 */}
+                                    <div
+                                        className={`
+                                            absolute bottom-0 left-1/2 h-0.5 bg-gradient-to-r from-purple-400 to-blue-400
+                                            transition-all duration-300 ease-out transform -translate-x-1/2
+                                            ${hoveredItem === 'about' ? 'w-full opacity-100' : 'w-0 opacity-0'}
+                                        `}
+                                    />
                                 </div>
                             </Link>
                         </NavigationMenuItem>
+
                         <NavigationMenuItem>
-                            <Link to="/friends">
+                            <Link
+                                to="/friends"
+                                className="nav-link-item"
+                                onMouseEnter={() => setHoveredItem('friends')}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
                                 <div
-                                    className={`group inline-flex h-10 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                                        isActive('/friends') ? 'bg-gray-100/50' : ''
-                                    }`}
+                                    className={`
+                                        relative px-4 py-2 text-sm font-medium text-gray-700 
+                                        transition-all duration-300 ease-out
+                                        hover:text-gray-900
+                                        ${isActive('/friends') ? 'text-gray-900 font-semibold' : ''}
+                                    `}
                                 >
                                     友链
+                                    {/* 下划线效果 - 根据悬停状态显示 */}
+                                    <div
+                                        className={`
+                                            absolute bottom-0 left-1/2 h-0.5 bg-gradient-to-r from-purple-400 to-blue-400
+                                            transition-all duration-300 ease-out transform -translate-x-1/2
+                                            ${hoveredItem === 'friends' ? 'w-full opacity-100' : 'w-0 opacity-0'}
+                                        `}
+                                    />
                                 </div>
                             </Link>
                         </NavigationMenuItem>
+
                         <NavigationMenuItem>
-                            <Link to="/archive">
+                            <Link
+                                to="/archive"
+                                className="nav-link-item"
+                                onMouseEnter={() => setHoveredItem('archive')}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
                                 <div
-                                    className={`group inline-flex h-10 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                                        isActive('/archive') ? 'bg-gray-100/50' : ''
-                                    }`}
+                                    className={`
+                                        relative px-4 py-2 text-sm font-medium text-gray-700 
+                                        transition-all duration-300 ease-out
+                                        hover:text-gray-900
+                                        ${isActive('/archive') ? 'text-gray-900 font-semibold' : ''}
+                                    `}
                                 >
                                     归档
+                                    {/* 下划线效果 - 根据悬停状态显示 */}
+                                    <div
+                                        className={`
+                                            absolute bottom-0 left-1/2 h-0.5 bg-gradient-to-r from-purple-400 to-blue-400
+                                            transition-all duration-300 ease-out transform -translate-x-1/2
+                                            ${hoveredItem === 'archive' ? 'w-full opacity-100' : 'w-0 opacity-0'}
+                                        `}
+                                    />
                                 </div>
                             </Link>
                         </NavigationMenuItem>
