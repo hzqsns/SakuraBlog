@@ -6,12 +6,10 @@ publishDate: '2024-07-30'
 coverImage: 'https://picsum.photos/800/600?random=2'
 date: 2024-07-30 15:30:00
 tags:
-    - 前端
-    - Markdown
-    - Remark
-    - Unified
+    - 数学
 category:
-    - 前端开发
+    - 算法题
+    - AcWings
 ---
 
 # 题目
