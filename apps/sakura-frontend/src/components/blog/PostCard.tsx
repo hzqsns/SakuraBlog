@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { Post } from '@/types'
 import { formatDate, getPostUrl } from '@/lib/utils'
 import { Link, useNavigate } from 'react-router-dom'
+import { useImageColor } from '@/hooks/useImageColor'
 import './PostList.less'
 
 interface PostCardProps {
@@ -11,6 +12,7 @@ interface PostCardProps {
 
 export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
     const navigate = useNavigate()
+    const colorData = useImageColor(post.coverImage)
 
     // 计算阅读时间，假设一分钟可以阅读300个字
     const readTime = Math.max(1, Math.ceil(post.content.length / 300))
@@ -26,7 +28,24 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
 
     // 左图右文/左文右图布局组件
     const LeftImageLayout = () => (
-        <div className="flex flex-row overflow-hidden alternate-layout-even rounded-lg min-h-[280px]">
+        <div
+            className="flex flex-row overflow-hidden rounded-lg min-h-[280px] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative"
+            style={
+                colorData
+                    ? {
+                          background: colorData.gradientStyle.split(';')[0].replace('background: ', ''),
+                          backdropFilter: 'blur(24px) saturate(180%)',
+                          WebkitBackdropFilter: 'blur(24px) saturate(180%)'
+                      }
+                    : {
+                          background: 'rgba(15, 15, 20, 0.8)',
+                          backdropFilter: 'blur(24px) saturate(180%)',
+                          WebkitBackdropFilter: 'blur(24px) saturate(180%)'
+                      }
+            }
+        >
+            {/* 顶部高亮线条 */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-t-lg"></div>
             {/* 左侧图片区域 */}
             <div className="relative w-[38%] overflow-hidden">
                 <div className="relative img-container h-full">
@@ -51,7 +70,24 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
     )
 
     const RightImageLayout = () => (
-        <div className="flex flex-row-reverse overflow-hidden alternate-layout-odd rounded-lg min-h-[280px]">
+        <div
+            className="flex flex-row-reverse overflow-hidden rounded-lg min-h-[280px] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative"
+            style={
+                colorData
+                    ? {
+                          background: colorData.gradientStyle.split(';')[0].replace('background: ', ''),
+                          backdropFilter: 'blur(24px) saturate(180%)',
+                          WebkitBackdropFilter: 'blur(24px) saturate(180%)'
+                      }
+                    : {
+                          background: 'rgba(15, 15, 20, 0.8)',
+                          backdropFilter: 'blur(24px) saturate(180%)',
+                          WebkitBackdropFilter: 'blur(24px) saturate(180%)'
+                      }
+            }
+        >
+            {/* 顶部高亮线条 */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-t-lg"></div>
             {/* 右侧图片区域 */}
             <div className="relative w-[38%] overflow-hidden">
                 <div className="relative img-container h-full">
@@ -130,7 +166,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                 <h2 className="text-2xl font-bold mb-4 text-white transition-colors duration-300 hover:text-blue-200">{post.title}</h2>
 
                 {/* 内容摘要 */}
-                <p className="text-gray-300 line-clamp-3 mb-4">{post.excerpt || post.content.substring(0, 150)}</p>
+                <p className="text-gray-200 line-clamp-3 mb-4">{post.excerpt || post.content.substring(0, 150)}</p>
             </div>
 
             {/* 下半部分 - 标签和阅读更多 */}
@@ -140,7 +176,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                     {post.tags.map((tag, index) => (
                         <span
                             key={`${post.id}-${tag}-${index}`}
-                            className="px-3 py-1 bg-gray-600 rounded-full text-sm transition-colors duration-300 hover:bg-gray-500 hover:text-white cursor-pointer"
+                            className="px-3 py-1 bg-white/20 text-white rounded-full text-sm transition-colors duration-300 hover:bg-white/30 hover:text-white cursor-pointer backdrop-blur-sm"
                             onClick={e => handleTagClick(e, tag)}
                         >
                             {tag}
