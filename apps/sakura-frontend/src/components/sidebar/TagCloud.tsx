@@ -107,7 +107,7 @@ export const TagCloud: FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-4 pb-2 border-b">
                 <TagIcon />
-                <h3 className="text-lg font-bold">标签云</h3>
+                <h3 className="text-lg font-bold">标签</h3>
             </div>
 
             <div className="flex flex-wrap gap-2">

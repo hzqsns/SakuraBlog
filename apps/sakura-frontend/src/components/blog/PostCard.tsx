@@ -166,7 +166,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                 <h2 className="text-2xl font-bold mb-4 text-white transition-colors duration-300 hover:text-blue-200">{post.title}</h2>
 
                 {/* 内容摘要 */}
-                <p className="text-gray-200 line-clamp-3 mb-4">{post.excerpt || post.content.substring(0, 150)}</p>
+                {post.excerpt && <p className="text-gray-200 line-clamp-3 mb-4">{post.excerpt}</p>}
             </div>
 
             {/* 下半部分 - 标签和阅读更多 */}
