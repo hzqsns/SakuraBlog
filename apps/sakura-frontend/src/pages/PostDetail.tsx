@@ -49,39 +49,168 @@ export const PostDetail: FC = () => {
         fetchPaper()
     }, [slug])
 
-    // 提取markdown文本中的标题作为目录，并添加序号
+    // 提取markdown文本中的标题作为目录，支持多种格式
     const extractHeadings = useCallback((markdown: string): HeadingItem[] => {
         if (!markdown) return []
 
-        // 使用正则表达式匹配Markdown标题行 (#开头)
-        const headingRegex = /^(#{1,6})\s+(.+)$/gm
         const headings: HeadingItem[] = []
+        let headingCounter = 0 // 统一的标题计数器
+
+        // 创建标题ID的统一函数
+        const createHeadingId = () => {
+            headingCounter++
+            return `heading-${headingCounter}`
+        }
+
+        // 1. 匹配标准 Markdown 标题 (# ## ### 等)
+        const markdownHeadingRegex = /^(#{1,6})\s+(.+)$/gm
         let match
+        const markdownMatches = []
+        while ((match = markdownHeadingRegex.exec(markdown)) !== null) {
+            markdownMatches.push({
+                start: match.index,
+                level: match[1].length,
+                text: match[2].trim(),
+                type: 'markdown'
+            })
+        }
 
-        // 为不同级别的标题维护计数器
-        const counters: { [level: number]: number } = {}
+        // 2. 匹配 HTML 标题标签 (<h1> <h2> 等)
+        const htmlHeadingRegex = /<h([1-6])[^>]*>([^<]+)<\/h[1-6]>/gi
+        const htmlMatches = []
+        while ((match = htmlHeadingRegex.exec(markdown)) !== null) {
+            htmlMatches.push({
+                start: match.index,
+                level: parseInt(match[1]),
+                text: match[2].trim(),
+                type: 'html'
+            })
+        }
 
-        while ((match = headingRegex.exec(markdown)) !== null) {
-            const level = match[1].length // 标题级别 (# 的数量)
-            const text = match[2].trim()
+        // 3. 匹配列表中的关键内容（特殊处理）
+        const listHeadingRegex = /<li>([^<]{1,20})(<ul>|<\/li>)/gi
+        const listMatches = []
+        while ((match = listHeadingRegex.exec(markdown)) !== null) {
+            const text = match[1].trim()
 
-            // 更新当前级别的计数器
-            if (!counters[level]) {
-                counters[level] = 0
+            // 只匹配看起来像标题的关键词或短词汇
+            const titleKeywords = [
+                '分析',
+                '注意点',
+                '目录',
+                '题目',
+                '输入输出',
+                '思路',
+                '解法',
+                '代码',
+                '总结',
+                '实现',
+                '算法',
+                '复杂度',
+                '说明',
+                '方法',
+                '步骤',
+                '背景',
+                '原理',
+                '结论'
+            ]
+            const isShortTitle =
+                text.length <= 8 && !text.includes('我') && !text.includes('的') && !text.includes('。') && !text.includes('，')
+
+            if (titleKeywords.some(keyword => text.includes(keyword)) || isShortTitle) {
+                listMatches.push({
+                    start: match.index,
+                    level: 2,
+                    text: text,
+                    type: 'list'
+                })
             }
-            counters[level]++
+        }
 
-            // 生成基于数字的ID
-            const id = `heading-${headings.length + 1}`
+        // 3.1. 特殊处理WordPress列表格式
+        const wpListRegex = /<!-- wp:list-item -->\s*<li>([^<]{1,20})<ul>/gi
+        while ((match = wpListRegex.exec(markdown)) !== null) {
+            const text = match[1].trim()
+            const titleKeywords = ['分析', '注意点', '目录', '题目', '输入输出', '思路', '解法', '代码', '总结', '实现', '算法', '复杂度']
 
+            if (titleKeywords.some(keyword => text.includes(keyword)) || text.length <= 8) {
+                listMatches.push({
+                    start: match.index,
+                    level: 2,
+                    text: text,
+                    type: 'wp-list'
+                })
+            }
+        }
+
+        // 4. 尝试匹配其他可能的标题结构
+        const otherHeadingRegex = /<!-- wp:(heading|list) [^>]*>[\s\S]*?<(h[1-6]|li)(?:[^>]*)>([^<]+)<\/(?:h[1-6]|li)>/gi
+        const otherMatches = []
+        while ((match = otherHeadingRegex.exec(markdown)) !== null) {
+            const text = match[3]?.trim()
+            if (text && text.length >= 2 && text.length <= 20) {
+                const level = match[2].startsWith('h') ? parseInt(match[2].slice(1)) : 2
+                otherMatches.push({
+                    start: match.index,
+                    level: level,
+                    text: text,
+                    type: 'other'
+                })
+            }
+        }
+
+        // 合并所有匹配结果并按出现位置排序
+        const allMatches = [...markdownMatches, ...htmlMatches, ...listMatches, ...otherMatches]
+        allMatches.sort((a, b) => a.start - b.start)
+
+        // 去除重复的标题（相同文本且位置接近）
+        const uniqueMatches = []
+        for (const match of allMatches) {
+            const isDuplicate = uniqueMatches.some(existing => {
+                const textSimilar = existing.text === match.text
+                const positionClose = Math.abs(existing.start - match.start) < 100
+                return textSimilar && positionClose
+            })
+            if (!isDuplicate) {
+                uniqueMatches.push(match)
+            }
+        }
+
+        // 转换为标题项
+        for (const match of uniqueMatches) {
             headings.push({
-                id,
-                text,
-                level,
+                id: createHeadingId(),
+                text: match.text,
+                level: match.level,
                 index: headings.length + 1
             })
         }
 
+        // 如果仍然没有找到标题，使用备用方案
+        if (headings.length === 0) {
+            // 简单匹配一些可能的标题格式
+            const fallbackRegex = /^([*-]\s*)?([^\n]{3,20})$/gm
+            const fallbackMatches = []
+            while ((match = fallbackRegex.exec(markdown)) !== null) {
+                const text = match[2].trim()
+                // 只选择看起来像标题的行
+                if (text.length >= 3 && text.length <= 20 && !text.includes('```') && !text.includes('http')) {
+                    fallbackMatches.push(text)
+                }
+            }
+
+            // 限制备用标题的数量
+            fallbackMatches.slice(0, 5).forEach(text => {
+                headings.push({
+                    id: createHeadingId(),
+                    text: text,
+                    level: 2,
+                    index: headings.length + 1
+                })
+            })
+        }
+
+        console.log('提取到的标题：', headings)
         return headings
     }, [])
 
@@ -136,49 +265,95 @@ export const PostDetail: FC = () => {
         if (!isLoaded || headings.length === 0) return
 
         const handleScroll = () => {
+            // 获取所有标题元素，增强查找逻辑
             const headingElements = headings
-                .map(h => ({
-                    id: h.id,
-                    element: document.getElementById(h.id)
-                }))
+                .map(h => {
+                    let element = document.getElementById(h.id)
+
+                    // 如果直接通过ID找不到，尝试其他方法
+                    if (!element) {
+                        // 首先尝试查找具有特定标记的元素
+                        const markedElements = document.querySelectorAll('.heading-marker')
+                        for (const el of markedElements) {
+                            const textContent = el.textContent?.trim()
+                            if (textContent === h.text) {
+                                element = el as HTMLElement
+                                if (!element.id) {
+                                    element.id = h.id
+                                }
+                                break
+                            }
+                        }
+
+                        // 如果还是找不到，尝试更广泛的查找
+                        if (!element) {
+                            const possibleElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, li, p, strong, b')
+                            for (const el of possibleElements) {
+                                const textContent = el.textContent?.trim()
+                                if (textContent === h.text) {
+                                    element = el as HTMLElement
+                                    // 为找到的元素添加ID，以便后续查找
+                                    if (!element.id) {
+                                        element.id = h.id
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+                    return {
+                        id: h.id,
+                        text: h.text,
+                        element: element
+                    }
+                })
                 .filter(item => item.element !== null)
 
-            // 找到当前视窗中的标题
-            for (let i = 0; i < headingElements.length; i++) {
-                const { id, element } = headingElements[i]
-                if (!element) continue
+            if (headingElements.length === 0) {
+                console.log('未找到任何标题元素，标题列表：', headings)
+                return
+            }
 
-                const rect = element.getBoundingClientRect()
-                // 在标题进入视窗顶部加上导航栏高度的范围内时激活
-                if (rect.top >= 0 && rect.top <= 150 + NAVBAR_HEIGHT_OFFSET) {
-                    if (activeHeading !== id) {
-                        setActiveHeading(id)
-                        // 更新URL而不引起页面跳转
-                        window.history.replaceState(null, '', `#${id}`)
-                    }
-                    return
+            // 简化的滚动检测逻辑
+            const scrollTop = window.pageYOffset
+            const threshold = NAVBAR_HEIGHT_OFFSET + 20 // 检测阈值
+
+            let activeId = null
+
+            // 从上到下遍历所有标题，找到当前应该高亮的标题
+            for (let i = headingElements.length - 1; i >= 0; i--) {
+                const heading = headingElements[i]
+                if (!heading.element) continue
+
+                const elementTop = heading.element.offsetTop
+
+                // 如果当前滚动位置已经超过了这个标题的位置，就激活这个标题
+                if (scrollTop >= elementTop - threshold) {
+                    activeId = heading.id
+                    console.log(`找到激活标题: ${heading.text} (scrollTop: ${scrollTop}, elementTop: ${elementTop})`)
+                    break
                 }
             }
 
-            // 如果没有标题在视窗中，选择最接近顶部的标题
-            if (headingElements.length > 0) {
-                const closestHeading = headingElements.reduce((prev, curr) => {
-                    if (!curr.element) return prev
-                    const prevRect = prev.element?.getBoundingClientRect()
-                    const currRect = curr.element.getBoundingClientRect()
-                    if (!prevRect) return curr
-                    return Math.abs(currRect.top) < Math.abs(prevRect.top) ? curr : prev
-                })
-                if (activeHeading !== closestHeading.id) {
-                    setActiveHeading(closestHeading.id)
-                    // 更新URL而不引起页面跳转
-                    window.history.replaceState(null, '', `#${closestHeading.id}`)
-                }
+            // 如果没有找到合适的标题，且滚动位置在第一个标题之前，则激活第一个标题
+            if (!activeId && headingElements.length > 0) {
+                activeId = headingElements[0].id
+                console.log(`使用默认第一个标题: ${headingElements[0].text}`)
+            }
+
+            // 更新活动标题
+            if (activeId && activeHeading !== activeId) {
+                console.log(`切换激活标题: ${activeHeading} -> ${activeId}`)
+                setActiveHeading(activeId)
+                // 更新URL而不引起页面跳转
+                window.history.replaceState(null, '', `#${activeId}`)
             }
         }
 
         window.addEventListener('scroll', handleScroll)
-        handleScroll() // 初始检查
+        // 延迟初始检查，确保DOM完全加载
+        setTimeout(handleScroll, 100)
 
         return () => {
             window.removeEventListener('scroll', handleScroll)
@@ -214,11 +389,6 @@ export const PostDetail: FC = () => {
 
     if (!paper) {
         return <div className="container mx-auto px-4 py-4">文章不存在</div>
-    }
-
-    // 辅助函数：为标题创建固定格式的ID（heading-1, heading-2, ...）
-    const createHeadingId = (index: number): string => {
-        return `heading-${index}`
     }
 
     return (
@@ -284,36 +454,100 @@ export const PostDetail: FC = () => {
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw]}
                         components={{
-                            // 使用序号创建标题ID
-                            h1: ({ node, ...props }) => {
-                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
-                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
-                                return <h1 id={id} {...props} />
+                            // 为标题添加ID，使用精确匹配
+                            h1: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                const id = heading ? heading.id : `heading-${Math.random().toString(36).substr(2, 9)}`
+                                return (
+                                    <h1 id={id} {...props}>
+                                        {children}
+                                    </h1>
+                                )
                             },
-                            h2: ({ node, ...props }) => {
-                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
-                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
-                                return <h2 id={id} {...props} />
+                            h2: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                const id = heading ? heading.id : `heading-${Math.random().toString(36).substr(2, 9)}`
+                                return (
+                                    <h2 id={id} {...props}>
+                                        {children}
+                                    </h2>
+                                )
                             },
-                            h3: ({ node, ...props }) => {
-                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
-                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
-                                return <h3 id={id} {...props} />
+                            h3: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                const id = heading ? heading.id : `heading-${Math.random().toString(36).substr(2, 9)}`
+                                return (
+                                    <h3 id={id} {...props}>
+                                        {children}
+                                    </h3>
+                                )
                             },
-                            h4: ({ node, ...props }) => {
-                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
-                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
-                                return <h4 id={id} {...props} />
+                            h4: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                const id = heading ? heading.id : `heading-${Math.random().toString(36).substr(2, 9)}`
+                                return (
+                                    <h4 id={id} {...props}>
+                                        {children}
+                                    </h4>
+                                )
                             },
-                            h5: ({ node, ...props }) => {
-                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
-                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
-                                return <h5 id={id} {...props} />
+                            h5: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                const id = heading ? heading.id : `heading-${Math.random().toString(36).substr(2, 9)}`
+                                return (
+                                    <h5 id={id} {...props}>
+                                        {children}
+                                    </h5>
+                                )
                             },
-                            h6: ({ node, ...props }) => {
-                                const headingIndex = headings.findIndex(h => h.text === String(props.children))
-                                const id = headingIndex >= 0 ? headings[headingIndex].id : createHeadingId(1)
-                                return <h6 id={id} {...props} />
+                            h6: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                const id = heading ? heading.id : `heading-${Math.random().toString(36).substr(2, 9)}`
+                                return (
+                                    <h6 id={id} {...props}>
+                                        {children}
+                                    </h6>
+                                )
+                            },
+                            // 为列表项添加ID支持（处理特殊格式的标题）
+                            li: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                // 更精确的匹配逻辑
+                                let heading = headings.find(h => h.text === text)
+
+                                // 如果直接匹配不到，尝试模糊匹配
+                                if (!heading) {
+                                    heading = headings.find(h => text.includes(h.text) || h.text.includes(text))
+                                }
+
+                                if (heading) {
+                                    console.log(`为列表项设置ID: "${text}" -> ${heading.id} (标题: "${heading.text}")`)
+                                    return (
+                                        <li id={heading.id} className="heading-marker" {...props}>
+                                            {children}
+                                        </li>
+                                    )
+                                }
+                                return <li {...props}>{children}</li>
+                            },
+                            // 处理其他可能包含标题的元素
+                            p: ({ children, ...props }) => {
+                                const text = String(children).trim()
+                                const heading = headings.find(h => h.text === text)
+                                if (heading && text.length < 50) {
+                                    return (
+                                        <p id={heading.id} {...props}>
+                                            {children}
+                                        </p>
+                                    )
+                                }
+                                return <p {...props}>{children}</p>
                             }
                         }}
                     >
