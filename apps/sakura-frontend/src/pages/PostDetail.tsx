@@ -53,8 +53,8 @@ export const PostDetail: FC = () => {
     const extractHeadings = useCallback((markdown: string): HeadingItem[] => {
         if (!markdown) return []
 
-        // 使用正则表达式匹配Markdown标题行 (##开头)
-        const headingRegex = /^(#{2,6})\s+(.+)$/gm
+        // 使用正则表达式匹配Markdown标题行 (#开头)
+        const headingRegex = /^(#{1,6})\s+(.+)$/gm
         const headings: HeadingItem[] = []
         let match
 
