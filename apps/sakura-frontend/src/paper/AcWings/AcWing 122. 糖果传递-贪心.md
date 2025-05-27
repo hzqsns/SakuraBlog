@@ -1,11 +1,11 @@
 ---
-title: AcWing 122. 糖果传递-贪心
+title: AcWing 122. 糖果传递
 excerpt: '' 
 author: Sakura
-publishDate: '2021-11-05'
+publishDate: '2025-04-05'
 coverImage: 'http://www.hzqsns.com/wp-content/uploads/2021/07/80638598_p0_master1200.jpg' 
 slug: 'AcWing-122'
-date: 2021-11-05 17:36:00
+date: 2025-04-05 17:36:00
 tags:
   - 贪心
 category:

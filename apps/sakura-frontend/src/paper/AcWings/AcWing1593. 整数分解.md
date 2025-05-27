@@ -1,10 +1,10 @@
 ---
 title: AcWing1593. 整数分解
-excerpt: 'AcWing1593. 整数分解详解'
+excerpt: ''
 author: 'Sakura'
-publishDate: '2024-07-29'
-coverImage: 'https://picsum.photos/800/600?random=2'
-date: 2024-07-29 15:30:00
+publishDate: '2025-04-29'
+coverImage: 'https://pub-07075d3d3f844b7cac01396dfa381361.r2.dev/92136247_p0_master1200.jpg'
+date: 2025-04-29 15:30:00
 tags:
     - DP
 category:
