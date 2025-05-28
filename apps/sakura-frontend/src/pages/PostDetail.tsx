@@ -10,6 +10,14 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { Waline } from '@/components/comment'
 
+// 定义匹配项的类型接口
+interface MatchItem {
+    start: number
+    level: number
+    text: string
+    type: string
+}
+
 // 扩展标题项类型，包含层级信息
 interface HeadingItem {
     id: string
@@ -164,7 +172,7 @@ export const PostDetail: FC = () => {
         allMatches.sort((a, b) => a.start - b.start)
 
         // 去除重复的标题（相同文本且位置接近）
-        const uniqueMatches = []
+        const uniqueMatches: MatchItem[] = []
         for (const match of allMatches) {
             const isDuplicate = uniqueMatches.some(existing => {
                 const textSimilar = existing.text === match.text
@@ -190,7 +198,7 @@ export const PostDetail: FC = () => {
         if (headings.length === 0) {
             // 简单匹配一些可能的标题格式
             const fallbackRegex = /^([*-]\s*)?([^\n]{3,20})$/gm
-            const fallbackMatches = []
+            const fallbackMatches: string[] = []
             while ((match = fallbackRegex.exec(markdown)) !== null) {
                 const text = match[2].trim()
                 // 只选择看起来像标题的行
