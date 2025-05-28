@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Paper } from '@/types/markdown'
-import { loadAllPapers } from '@/utils/loadPapers'
+import { searchPapers } from '@/utils/loadPapers'
 import { ArticleShow } from '@/components/blog/ArticleShow'
 import { Post } from '@/types'
 
@@ -30,33 +30,22 @@ export const SearchResults: FC = () => {
             setIsLoading(true)
 
             try {
-                // 加载所有文章
-                const allPapers = await loadAllPapers()
-
-                // 按照查询词过滤文章
-                const searchResults = allPapers.filter(paper => {
-                    const searchableContent = [paper.title, paper.content, paper.excerpt, paper.author, ...paper.tags, ...paper.category]
-                        .join(' ')
-                        .toLowerCase()
-
-                    return searchableContent.includes(query.toLowerCase())
-                })
-
-                setResults(searchResults.map(adaptPaperToPost))
-                setIsLoading(false)
+                if (query.trim()) {
+                    // 使用优化的搜索函数，限制返回30个结果
+                    const searchResults = await searchPapers(query, 30)
+                    setResults(searchResults.map(adaptPaperToPost))
+                } else {
+                    setResults([])
+                }
             } catch (error) {
                 console.error('Error searching papers:', error)
+                setResults([])
+            } finally {
                 setIsLoading(false)
             }
         }
 
-        // 当查询字符串变化时执行搜索
-        if (query) {
-            fetchResults()
-        } else {
-            setResults([])
-            setIsLoading(false)
-        }
+        fetchResults()
     }, [query])
 
     return (

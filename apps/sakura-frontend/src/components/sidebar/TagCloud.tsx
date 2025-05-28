@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { loadAllPapers } from '@/utils/loadPapers'
+import { getAllTags } from '@/utils/loadPapers'
 
 interface TagCount {
     name: string
@@ -13,32 +13,15 @@ export const TagCloud: FC = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        // 异步加载所有文章并提取标签
+        // 异步加载所有标签
         const fetchTags = async () => {
             setLoading(true)
             try {
-                const papers = await loadAllPapers()
-
-                // 统计所有标签及其出现次数
-                const tagCounts: Record<string, number> = {}
-                papers.forEach(paper => {
-                    paper.tags.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1
-                    })
-                })
-
-                // 转换为数组并排序
-                const tagArray = Object.entries(tagCounts).map(([name, count]) => ({
-                    name,
-                    count
-                }))
-
-                // 按出现次数排序
-                tagArray.sort((a, b) => b.count - a.count)
-
-                setTags(tagArray)
+                const allTags = await getAllTags()
+                setTags(allTags)
             } catch (error) {
                 console.error('Error loading tags:', error)
+                setTags([])
             } finally {
                 setLoading(false)
             }

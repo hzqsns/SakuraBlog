@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Paper } from '@/types/markdown'
-import { loadAllPapers } from '@/utils/loadPapers'
+import { getPapersByTag } from '@/utils/loadPapers'
 import { ArticleShow } from '@/components/blog/ArticleShow'
 import { Post } from '@/types'
 
@@ -30,15 +30,16 @@ export const TagResults: FC = () => {
             setIsLoading(true)
 
             try {
-                // 加载所有文章
-                const allPapers = await loadAllPapers()
-
-                // 过滤出包含指定标签的文章
-                const taggedPapers = allPapers.filter(paper => paper.tags.some(t => t.toLowerCase() === decodedTag.toLowerCase()))
-
-                setResults(taggedPapers.map(adaptPaperToPost))
+                if (decodedTag) {
+                    // 使用优化的标签搜索函数
+                    const taggedPapers = await getPapersByTag(decodedTag)
+                    setResults(taggedPapers.map(adaptPaperToPost))
+                } else {
+                    setResults([])
+                }
             } catch (error) {
                 console.error(`Error fetching papers with tag ${decodedTag}:`, error)
+                setResults([])
             } finally {
                 setIsLoading(false)
             }
