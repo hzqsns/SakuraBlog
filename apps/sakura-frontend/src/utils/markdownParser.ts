@@ -78,7 +78,7 @@ export function parseMarkdown(markdown: string): MarkdownData {
         if (!line) continue
 
         // 检查是否是新的键值对
-        if (!isInArray && line.includes(':')) {
+        if (line.includes(':') && !line.startsWith('-')) {
             const [key, ...valueParts] = line.split(':')
             currentKey = key.trim()
 
@@ -96,7 +96,7 @@ export function parseMarkdown(markdown: string): MarkdownData {
             }
         }
         // 处理数组项
-        else if (line.startsWith('-')) {
+        else if (line.startsWith('-') && isInArray && currentKey) {
             if (!Array.isArray(result[currentKey])) {
                 result[currentKey] = []
             }

@@ -46,7 +46,6 @@ export async function loadAllPapers(): Promise<Paper[]> {
                 const wordCount = paperData.content.split(/\s+/).length
                 paperData.wordCount = wordCount
                 paperData.readingTime = `${Math.ceil(wordCount / 200)}分钟`
-
                 papers.push(paperData)
             } catch (error) {
                 console.error(`Error loading paper from path ${path}:`, error)
