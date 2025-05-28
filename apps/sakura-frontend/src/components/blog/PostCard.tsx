@@ -56,7 +56,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                         onError={e => {
                             const target = e.target as HTMLImageElement
                             target.onerror = null
-                            target.src = 'https://via.placeholder.com/800x600?text=Sakura'
+                            target.src = 'https://picsum.photos/800/600?random=6'
                         }}
                     />
                 </div>
@@ -98,7 +98,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                         onError={e => {
                             const target = e.target as HTMLImageElement
                             target.onerror = null
-                            target.src = 'https://via.placeholder.com/800x600?text=Sakura'
+                            target.src = 'https://picsum.photos/800/600?random=3'
                         }}
                     />
                 </div>
