@@ -14,8 +14,8 @@ async function getAllPaperPaths(): Promise<string[]> {
     }
 
     try {
-        // 使用Vite的import.meta.glob只获取路径，不加载内容
-        const modules = import.meta.glob('/src/paper/**/*.md', { as: 'url' })
+        // 使用Vite的import.meta.glob获取所有markdown文件
+        const modules = import.meta.glob('/src/paper/**/*.md', { as: 'raw' })
 
         const paths = Object.keys(modules).filter(path => {
             // 跳过README.md文件
@@ -35,9 +35,16 @@ async function getAllPaperPaths(): Promise<string[]> {
  */
 async function loadPaperFromPath(path: string): Promise<Paper | null> {
     try {
-        // 动态导入单个文件
-        const module = await import(`${path}?raw`)
-        const markdownText = module.default
+        // 重新获取modules对象以进行动态导入
+        const modules = import.meta.glob('/src/paper/**/*.md', { as: 'raw' })
+
+        if (!modules[path]) {
+            console.error(`Module not found for path: ${path}`)
+            return null
+        }
+
+        // 使用modules对象进行导入
+        const markdownText = await modules[path]()
 
         // 从路径中提取文件名和目录名
         const pathMatch = path.match(/\/src\/paper\/([^/]+)\/([^/]+)\.md$/)
