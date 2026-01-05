@@ -7,13 +7,22 @@ import { AppRouteObject } from '@/types/route'
 export const Router: FC = () => {
     return (
         <BrowserRouter>
-            <Layout>
-                <Routes>
-                    {allRoutes.map((route: AppRouteObject) => (
-                        <Route key={route.path} path={route.path} element={route.element} />
-                    ))}
-                </Routes>
-            </Layout>
+            <Routes>
+                {allRoutes.map((route: AppRouteObject) => {
+                    // 后台管理页面不使用 Layout
+                    if (route.path?.startsWith('/admin')) {
+                        return <Route key={route.path} path={route.path} element={route.element} />
+                    }
+                    // 其他页面使用 Layout
+                    return (
+                        <Route
+                            key={route.path}
+                            path={route.path}
+                            element={<Layout>{route.element}</Layout>}
+                        />
+                    )
+                })}
+            </Routes>
         </BrowserRouter>
     )
 }

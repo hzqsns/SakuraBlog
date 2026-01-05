@@ -1,18 +1,66 @@
-// 博客文章类型
-export interface Post {
-    id: string
-    title: string
-    content: string
-    excerpt: string
-    author: string
-    publishDate: string
-    tags: string[]
-    category: string
-    coverImage: string
+// ========== API 数据类型 ==========
+
+// 分类
+export interface Category {
+    id: number
+    name: string
     slug: string
+    description: string
+    color: string
+    post_count?: number
 }
 
-// 用户类型
+// 标签
+export interface Tag {
+    id: number
+    name: string
+    slug: string
+    color: string
+    post_count?: number
+}
+
+// 文章（来自 API）
+export interface Post {
+    id: number
+    title: string
+    slug: string
+    content: string
+    excerpt: string
+    cover_image: string
+    status: 'draft' | 'published' | 'archived'
+    publish_date: string | null
+    view_count: number
+    word_count: number
+    reading_time: string
+    category: Category
+    tags: Tag[]
+    created_at: string
+    updated_at: string
+}
+
+// 文章列表响应
+export interface PostListResponse {
+    posts: Post[]
+    total: number
+    page: number
+    page_size: number
+    total_pages: number
+}
+
+// 文章查询参数
+export interface PostQuery {
+    page?: number
+    page_size?: number
+    status?: string
+    category_id?: number
+    tag_id?: number
+    search?: string
+    order_by?: string
+    order?: 'asc' | 'desc'
+}
+
+// ========== 用户类型 ==========
+
 export interface User {
     id: string
     username: string
@@ -22,6 +70,8 @@ export interface User {
     email: string
     role: 'admin' | 'user' | 'guest'
 }
+
+// ========== 其他类型 ==========
 
 // 友链类型
 export interface FriendLink {
@@ -56,19 +106,9 @@ export interface AppState {
 
 // API响应类型
 export interface ApiResponse<T> {
+    code: number
+    message: string
     data: T
-    success: boolean
-    message?: string
-}
-
-// 重新导出markdown.ts中的类型
-export * from './markdown'
-
-// 扩展Window接口，添加global属性
-declare global {
-    interface Window {
-        global: Window
-    }
 }
 
 // 博客设置类型
@@ -94,6 +134,7 @@ export interface BlogSettings {
     }
 }
 
+// 评论类型
 export interface Comment {
     id: string
     content: string
@@ -105,4 +146,10 @@ export interface Comment {
     replies?: Comment[]
     likes: number
 }
- 
+
+// 扩展Window接口
+declare global {
+    interface Window {
+        global: Window
+    }
+}

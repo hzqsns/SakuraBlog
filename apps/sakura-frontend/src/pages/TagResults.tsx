@@ -1,57 +1,39 @@
 import { FC, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Paper } from '@/types/markdown'
-import { getPapersByTag } from '@/utils/loadPapers'
+import { usePosts, useTags } from '@/hooks/usePosts'
 import { ArticleShow } from '@/components/blog/ArticleShow'
-import { Post } from '@/types'
-
-// 将Paper类型转换为PostList组件所需的Post类型
-const adaptPaperToPost = (paper: Paper): Post => ({
-    id: paper.slug,
-    title: paper.title,
-    content: paper.content,
-    excerpt: paper.excerpt,
-    author: paper.author,
-    publishDate: paper.publishDate,
-    tags: paper.tags,
-    category: paper.category[0] || '',
-    coverImage: paper.coverImage,
-    slug: paper.slug
-})
 
 export const TagResults: FC = () => {
     const { tag } = useParams<{ tag: string }>()
     const decodedTag = tag ? decodeURIComponent(tag) : ''
-    const [results, setResults] = useState<Post[]>([])
-    const [isLoading, setIsLoading] = useState(true)
 
+    // 获取标签列表以找到对应的 tag_id
+    const { tags, isLoading: isLoadingTags } = useTags()
+    const [tagId, setTagId] = useState<number | undefined>(undefined)
+
+    // 根据标签名查找 tag_id
     useEffect(() => {
-        const fetchTaggedPapers = async () => {
-            setIsLoading(true)
-
-            try {
-                if (decodedTag) {
-                    // 使用优化的标签搜索函数
-                    const taggedPapers = await getPapersByTag(decodedTag)
-                    setResults(taggedPapers.map(adaptPaperToPost))
-                } else {
-                    setResults([])
-                }
-            } catch (error) {
-                console.error(`Error fetching papers with tag ${decodedTag}:`, error)
-                setResults([])
-            } finally {
-                setIsLoading(false)
-            }
+        if (tags.length > 0 && decodedTag) {
+            const foundTag = tags.find(t => t.name.toLowerCase() === decodedTag.toLowerCase())
+            setTagId(foundTag?.id)
         }
+    }, [tags, decodedTag])
 
-        fetchTaggedPapers()
-    }, [decodedTag])
+    // 使用 tag_id 获取文章
+    const { posts, isLoading: isLoadingPosts } = usePosts({
+        tagId: tagId,
+        pageSize: 30
+    })
+
+    const isLoading = isLoadingTags || (tagId !== undefined && isLoadingPosts)
+
+    // 如果没找到标签，显示空结果
+    const displayPosts = tagId ? posts : []
 
     return (
         <ArticleShow
             title={`标签: ${decodedTag}`}
-            results={results}
+            results={displayPosts}
             isLoading={isLoading}
             emptyMessage={{
                 title: `没有找到标签为 "${decodedTag}" 的文章`,

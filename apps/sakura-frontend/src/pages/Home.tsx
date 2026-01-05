@@ -1,78 +1,22 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useState, useEffect } from 'react'
 import { PostList } from '@/components/blog/PostList'
-import { loadPapersPaginated } from '@/utils/loadPapers'
-import { Paper } from '@/types/markdown'
+import { usePosts } from '@/hooks/usePosts'
 
-// 每页显示的文章数量
 const ITEMS_PER_PAGE = 6
 
-// 将Paper类型转换为PostList组件所需的Post类型
-const adaptPaperToPost = (paper: Paper) => ({
-    id: paper.slug,
-    title: paper.title,
-    content: paper.content,
-    excerpt: paper.excerpt,
-    author: paper.author,
-    publishDate: paper.publishDate,
-    tags: paper.tags,
-    category: paper.category[0] || '',
-    coverImage: paper.coverImage,
-    slug: paper.slug
-})
-
 export const Home: FC = () => {
-    const [papers, setPapers] = useState<Paper[]>([])
-    const [currentPage, setCurrentPage] = useState(1)
-    const [hasMore, setHasMore] = useState(true)
+    const { posts, total, isLoading, isLoadingMore, hasMore, loadMore } = usePosts({
+        pageSize: ITEMS_PER_PAGE
+    })
+
     const [isLoaded, setIsLoaded] = useState(false)
-    const [isLoading, setIsLoading] = useState(true)
-    const [isLoadingMore, setIsLoadingMore] = useState(false)
-    const [totalCount, setTotalCount] = useState(0)
 
-    // 初始加载第一页文章
+    // 初次加载完成后设置动画状态
     useEffect(() => {
-        const fetchInitialPapers = async () => {
-            setIsLoading(true)
-            try {
-                const result = await loadPapersPaginated(1, ITEMS_PER_PAGE)
-                setPapers(result.papers)
-                setHasMore(result.hasMore)
-                setTotalCount(result.total)
-                setCurrentPage(1)
-
-                // 添加短暂延迟以便过渡动画更加平滑
-                setTimeout(() => {
-                    setIsLoaded(true)
-                    setIsLoading(false)
-                }, 100)
-            } catch (error) {
-                console.error('Error loading initial papers:', error)
-                setIsLoading(false)
-            }
+        if (!isLoading && posts.length > 0) {
+            setTimeout(() => setIsLoaded(true), 100)
         }
-
-        fetchInitialPapers()
-    }, [])
-
-    // 加载更多文章
-    const loadMore = async () => {
-        if (isLoadingMore || !hasMore) return
-
-        setIsLoadingMore(true)
-        try {
-            const nextPage = currentPage + 1
-            const result = await loadPapersPaginated(nextPage, ITEMS_PER_PAGE)
-
-            // 追加新的文章到现有列表
-            setPapers(prevPapers => [...prevPapers, ...result.papers])
-            setHasMore(result.hasMore)
-            setCurrentPage(nextPage)
-        } catch (error) {
-            console.error('Error loading more papers:', error)
-        } finally {
-            setIsLoadingMore(false)
-        }
-    }
+    }, [isLoading, posts.length])
 
     if (isLoading && !isLoaded) {
         return (
@@ -100,13 +44,13 @@ export const Home: FC = () => {
             }`}
         >
             {/* 显示文章总数 */}
-            {totalCount > 0 && (
+            {total > 0 && (
                 <div className="text-center text-gray-600 text-sm">
-                    共 {totalCount} 篇文章，已显示 {papers.length} 篇
+                    共 {total} 篇文章，已显示 {posts.length} 篇
                 </div>
             )}
 
-            <PostList posts={papers.map(adaptPaperToPost)} hasMore={hasMore} onLoadMore={loadMore} isLoadingMore={isLoadingMore} />
+            <PostList posts={posts} hasMore={hasMore} onLoadMore={loadMore} isLoadingMore={isLoadingMore} />
         </div>
     )
 }

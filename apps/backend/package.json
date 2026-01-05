@@ -1,13 +1,13 @@
 {
-  "name": "backend",
+  "name": "sakura-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sakura Blog Backend API with Go + Gin + PostgreSQL",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd ../backend && go run ./cmd/server",
+    "build": "cd ../backend && go build -o bin/server ./cmd/server",
+    "dev": "cd ../backend && go run ./cmd/server"
   },
-  "keywords": [],
+  "keywords": ["blog", "api", "go", "gin", "postgresql"],
   "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.10.0"
+  "license": "MIT"
 }

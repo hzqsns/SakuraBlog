@@ -12,19 +12,22 @@ interface PostCardProps {
 
 export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
     const navigate = useNavigate()
-    const colorData = useImageColor(post.coverImage)
+    const colorData = useImageColor(post.cover_image)
 
-    // 计算阅读时间，假设一分钟可以阅读300个字
-    const readTime = Math.max(1, Math.ceil(post.content.length / 300))
+    // 使用 API 返回的 reading_time，或计算阅读时间
+    const readTime = post.reading_time || `${Math.max(1, Math.ceil(post.word_count / 300))}分钟`
 
     // 使用工具函数生成URL
     const postUrl = getPostUrl(post)
 
-    const handleTagClick = (e: React.MouseEvent, tag: string) => {
+    const handleTagClick = (e: React.MouseEvent, tagName: string) => {
         e.preventDefault()
         e.stopPropagation()
-        navigate(`/tag/${encodeURIComponent(tag)}`)
+        navigate(`/tag/${encodeURIComponent(tagName)}`)
     }
+
+    // 获取标签名称列表
+    const tagNames = post.tags?.map(tag => tag.name) || []
 
     // 左图右文/左文右图布局组件
     const LeftImageLayout = () => (
@@ -50,7 +53,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
             <div className="relative w-[38%] overflow-hidden">
                 <div className="relative img-container h-full">
                     <img
-                        src={post.coverImage}
+                        src={post.cover_image}
                         alt={post.title}
                         className="absolute inset-0 w-full h-full object-cover"
                         onError={e => {
@@ -92,7 +95,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
             <div className="relative w-[38%] overflow-hidden">
                 <div className="relative img-container h-full">
                     <img
-                        src={post.coverImage}
+                        src={post.cover_image}
                         alt={post.title}
                         className="absolute inset-0 w-full h-full object-cover"
                         onError={e => {
@@ -134,12 +137,12 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z"
                             ></path>
                         </svg>
-                        <span>{formatDate(post.publishDate, 'YYYY年MM月DD日')}</span>
+                        <span>{formatDate(post.publish_date || post.created_at, 'YYYY年MM月DD日')}</span>
                     </div>
 
                     <div className="flex items-center gap-4">
                         {/* 字数统计 */}
-                        <span className="text-gray-300 text-sm">共{post.content.length}字</span>
+                        <span className="text-gray-300 text-sm">共{post.word_count}字</span>
 
                         {/* 阅读时间 */}
                         <div className="flex items-center text-gray-300 text-sm">
@@ -157,7 +160,7 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                 ></path>
                             </svg>
-                            <span>约{readTime}分钟</span>
+                            <span>{readTime}</span>
                         </div>
                     </div>
                 </div>
@@ -173,13 +176,13 @@ export const PostCard: FC<PostCardProps> = ({ post, isEven = true }) => {
             <div>
                 {/* 标签 */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                    {post.tags.map((tag, index) => (
+                    {tagNames.map((tagName, index) => (
                         <span
-                            key={`${post.id}-${tag}-${index}`}
+                            key={`${post.id}-${tagName}-${index}`}
                             className="px-3 py-1 bg-white/20 text-white rounded-full text-sm transition-colors duration-300 hover:bg-white/30 hover:text-white cursor-pointer backdrop-blur-sm"
-                            onClick={e => handleTagClick(e, tag)}
+                            onClick={e => handleTagClick(e, tagName)}
                         >
-                            {tag}
+                            {tagName}
                         </span>
                     ))}
                 </div>

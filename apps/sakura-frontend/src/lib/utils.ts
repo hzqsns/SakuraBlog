@@ -200,7 +200,7 @@ export async function generateSlug(title: string, tags: string[] = [], date?: st
 }
 
 // 构建文章URL
-export const getPostUrl = (post: { id: string; slug?: string; title?: string }): string => {
+export const getPostUrl = (post: { id: string | number; slug?: string; title?: string }): string => {
     if (post.slug) {
         return `/post/${post.slug}`
     }

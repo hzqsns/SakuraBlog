@@ -5,10 +5,11 @@ import { Archive } from '@/pages/Archive'
 import { PostDetail } from '@/pages/PostDetail'
 import { SearchResults } from '@/pages/SearchResults'
 import { TagResults } from '@/pages/TagResults'
-import { RouteGuard } from './RouteGuard'
+import { Admin } from '@/pages/Admin'
+import { AdminEditor } from '@/pages/AdminEditor'
 import { AppRouteObject } from '@/types/route'
 
-// 路由配置
+// 公开路由配置
 export const routes: AppRouteObject[] = [
     {
         path: '/',
@@ -49,35 +50,32 @@ export const routes: AppRouteObject[] = [
         element: <TagResults />,
         showInMenu: false
     },
-    // 未授权页面
+    // 后台管理
     {
-        path: '/unauthorized',
-        element: <div>您没有权限访问该页面</div>,
+        path: '/admin',
+        element: <Admin />,
+        title: '管理后台',
+        showInMenu: false
+    },
+    {
+        path: '/admin/editor',
+        element: <AdminEditor />,
+        title: '写文章',
+        showInMenu: false
+    },
+    {
+        path: '/admin/editor/:id',
+        element: <AdminEditor />,
+        title: '编辑文章',
         showInMenu: false
     },
     // 404 页面
     {
         path: '*',
-        element: <div>404 - 页面不存在</div>,
+        element: <div className="text-center py-20 text-gray-500">404 - 页面不存在</div>,
         showInMenu: false
     }
 ]
 
-// 需要鉴权的路由
-export const protectedRoutes: AppRouteObject[] = [
-    {
-        path: '/admin',
-        element: (
-            <RouteGuard requireAuth roles={['admin']}>
-                <div>管理员页面</div>
-            </RouteGuard>
-        ),
-        title: '管理',
-        showInMenu: false,
-        requireAuth: true,
-        roles: ['admin']
-    }
-]
-
 // 合并所有路由
-export const allRoutes: AppRouteObject[] = [...routes, ...protectedRoutes]
+export const allRoutes: AppRouteObject[] = [...routes]

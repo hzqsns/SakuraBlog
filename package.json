@@ -1,16 +1,27 @@
 {
   "name": "SakuraBlog",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sakura Blog - 前后端分离的个人博客系统",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:frontend": "cd apps/sakura-frontend && pnpm dev",
+    "dev:backend": "cd apps/backend && go run ./cmd/server",
+    "build:frontend": "cd apps/sakura-frontend && pnpm build",
+    "build:backend": "cd apps/backend && go build -o bin/server ./cmd/server",
+    "start:backend": "cd apps/backend && ./bin/server",
+    "migrate": "cd apps/backend && go run ./cmd/migrate",
+    "setup": "pnpm install && cd apps/backend && go mod tidy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["blog", "react", "go", "gin", "postgresql"],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "rehype-raw": "^7.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
